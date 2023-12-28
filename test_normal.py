@@ -35,6 +35,17 @@ for dataset in datasets:
         else:
             data_3.append(record_values)
 
+print("\nDATA_1:\n")
+print(data_1)
+print("\n")
+
+print("\nDATA_2:\n")
+print(data_2)
+print("\n")
+
+print("\nDATA_3:\n")
+print(data_3)
+print("\n")
     
 # Flatten the list of lists into a single list
 all_values_1 = [value for sublist in data_1 for value in sublist]
@@ -43,6 +54,7 @@ all_values_3 = [value for sublist in data_3 for value in sublist]
 
 # Perform the Shapiro-Wilk test for normality on the combined data
 significance_level = 0.05
+print("\nSignificance Level: ",significance_level,"\n")
 stat_1, p_value_1 = stats.shapiro(all_values_1)
 
 
@@ -104,14 +116,14 @@ print(f"Kolmogorov-Smirnov test statistic 1: {result_1.statistic}, p-value: {res
 if result_1.pvalue > alpha:
     print("Distribution 1 appears to be normal.")
 else:
-    print("Distribution 1 does not appear to be normal.")
+    print("Distribution 1 does not appear to be normal.\n")
 
 result_2 = kstest(all_values_2, 'norm')
 print(f"Kolmogorov-Smirnov test statistic 2: {result_2.statistic}, p-value: {result_2.pvalue}")
 if result_2.pvalue > alpha:
     print("Distribution 2 appears to be normal.")
 else:
-    print("Distribution 2 does not appear to be normal.")
+    print("Distribution 2 does not appear to be normal.\n")
 
 result_3 = kstest(all_values_3, 'norm')
 print(f"Kolmogorov-Smirnov test statistic 3: {result_3.statistic}, p-value: {result_3.pvalue}")
@@ -127,21 +139,21 @@ print(f"Lilliefors test statistic 1: {result_1}, p-value: {p_value_1}")
 if p_value_1 > alpha:
     print("Distribution 1 appears to be normal.")
 else:
-    print("Distribution 1 does not appear to be normal.")
+    print("Distribution 1 does not appear to be normal.\n")
 
 result_2, p_value_2 = lilliefors(all_values_2)
 print(f"Lilliefors test statistic 2: {result_2}, p-value: {p_value_2}")
 if p_value_2 > alpha:
     print("Distribution 2 appears to be normal.")
 else:
-    print("Distribution 2 does not appear to be normal.")
+    print("Distribution 2 does not appear to be normal.\n")
 
 result_3, p_value_3 = lilliefors(all_values_3)
 print(f"Lilliefors test statistic 3: {result_3}, p-value: {p_value_3}")
 if p_value_3 > alpha:
     print("Distribution 3 appears to be normal.")
 else:
-    print("Distribution 3 does not appear to be normal.")
+    print("Distribution 3 does not appear to be normal.\n")
 print("\n")
 
 
