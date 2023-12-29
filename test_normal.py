@@ -16,6 +16,8 @@ df_train_1 = pd.read_csv(percorso_file_train_1)
 df_train_2 = pd.read_csv(percorso_file_train_2)
 df_train_3 = pd.read_csv(percorso_file_train_3)
 
+print(df_train_1.head(1))
+
 data_1 = []
 data_2 = []
 data_3 = []
