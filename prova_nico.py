@@ -49,7 +49,7 @@ monk_dataset.set_index('Id', inplace=True)
 labels = monk_dataset.pop('class')
 
 # Effettuare il One-Hot-Encoding per tutte le colonne
-monk_dataset_encoded = pd.get_dummies(monk_dataset, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'])
+monk_dataset_encoded = pd.get_dummies(monk_dataset, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'], dtype=float)
 
 # Stampare il DataFrame risultante
 print("DataFrame con One-Hot-Encoding su tutte le colonne:")
