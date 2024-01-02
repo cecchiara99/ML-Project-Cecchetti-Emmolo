@@ -4,6 +4,7 @@ from statsmodels.stats.diagnostic import lilliefors
 from scipy.stats import anderson
 import numpy as np
 from statsmodels.stats.diagnostic import lilliefors
+from NN import NeuralNetwork
 
 
 
@@ -41,6 +42,25 @@ print("Dataset normalizzato:")
 print(monk_dataset_normalized)
 """
 
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def forward_pass(input_data, weights, biases):
+    # Inizializzazione con i dati di input
+    current_layer_output = input_data
+
+    # Iterazione attraverso gli strati
+    for layer in NeuralNetwork.layers:
+        # Moltiplicazione dei pesi e somma ponderata
+        weighted_sum = current_layer_output.dot(layer.weights) + layer.bias
+        
+        # Funzione di attivazione
+        current_layer_output = sigmoid(weighted_sum)
+    
+    # Output finale
+    final_output = current_layer_output
+    return final_output
+
 
 # Leggi il dataset di addestramento 1
 col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
@@ -51,6 +71,16 @@ labels = monk_dataset.pop('class')
 # Effettuare il One-Hot-Encoding per tutte le colonne
 monk_dataset_encoded = pd.get_dummies(monk_dataset, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'], dtype=float)
 
+# Riunisci il dataset codificato con le etichette
+monk_dataset_encoded['class'] = labels
+
 # Stampare il DataFrame risultante
-print("DataFrame con One-Hot-Encoding su tutte le colonne:")
-print(monk_dataset_encoded)
+# print(monk_dataset_encoded)
+
+# Converte il DataFrame in un array NumPy
+monk_dataset_array = monk_dataset_encoded.to_numpy(dtype=np.float32)
+print(monk_dataset_array[0])
+
+output = forward_pass(monk_dataset_array[0], NeuralNetwork., NeuralNetwork.biases)
+print(output)
+
