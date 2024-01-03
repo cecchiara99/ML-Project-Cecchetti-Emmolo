@@ -1,30 +1,43 @@
+# Code Standard 8: Comments and Documentation
+
 import pandas as pd
 import numpy as np
-from Layer import NeuralNetwork
 
-# Specifica i percorsi dei tuoi file di addestramento e di test
+# Specify the paths to your training and test files
 percorso_file_train_1 = './monk+s+problems/monks-1.train'
 percorso_file_train_2 = './monk+s+problems/monks-2.train'
 percorso_file_train_3 = './monk+s+problems/monks-3.train'
 
-# Read the training dataset 1
-col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
-monk_dataset = pd.read_csv(percorso_file_train_1, sep=' ', names=col_names)
-monk_dataset.set_index('Id', inplace=True)
-labels = monk_dataset.pop('class')
+def preprocessing(path):
+    """
+    Preprocesses the data from the specified file path.
 
-# One-Hot-Encoding for all columns
-monk_dataset_encoded = pd.get_dummies(monk_dataset, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'], dtype=float)
+    Args:
+        path (str): The path to the data file.
 
-# Reunite the encoded dataset with the labels
-monk_dataset_encoded['class'] = labels
+    Returns:
+        tuple: A tuple containing the preprocessed data array and labels array.
+    """
+    # Read the training dataset
+    col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
+    monk_dataset = pd.read_csv(path, sep=' ', names=col_names)
+    monk_dataset.set_index('Id', inplace=True)
+    labels = monk_dataset.pop('class')
 
-# Print the resulting DataFrame
-print(monk_dataset_encoded)
+    # One-Hot-Encoding for all columns except the target column
+    monk_dataset_encoded = pd.get_dummies(monk_dataset, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'], dtype=float)
 
-# Convert the DataFrame to a NumPy array
-monk_dataset_array = monk_dataset_encoded.to_numpy(dtype=np.float32)
-print(monk_dataset_array[0])
+    # Convert the DataFrame to a NumPy array
+    monk_dataset_array = monk_dataset_encoded.to_numpy(dtype=np.float32)
 
+    # Convert the labels to a NumPy array
+    labels_array = labels.to_numpy(dtype=np.float32)
 
-# dividere fra features e target value dopo encoding
+    return monk_dataset_array, labels_array
+
+# Preprocessing of the training dataset
+monk_dataset_array, labels_array = preprocessing(percorso_file_train_1)
+
+# Display the shapes of the preprocessed arrays
+print("Monk1-shape: ", monk_dataset_array.shape)
+print("Labels-shape: ", labels_array.shape)
