@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 class Layer:
-    def __init__(self, input_size, hidden_size, output_size, activation='sigmoid',
+    def __init__(self, input_size, output_size, activation='sigmoid',
                  learning_rate=0.01, momentum=0.9, weight_decay=0.001):
         """
         Initialize the neural network layer with specified parameters.
@@ -19,11 +19,14 @@ class Layer:
 
         # Initialize the layer with specified parameters
         self.input_size = input_size
-        self.hidden_size = hidden_size
+        #self.hidden_size = hidden_size
         self.output_size = output_size
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.weight_decay = weight_decay
+
+        self.inputs = None
+        self.outputs = None
 
         # Initialize weights and biases
         self.weights_input_hidden = np.random.randn(input_size, hidden_size)
@@ -34,8 +37,8 @@ class Layer:
         # Initialize momentum terms
         self.momentum_weights_input_hidden = np.zeros_like(self.weights_input_hidden)
         self.momentum_bias_hidden = np.zeros_like(self.bias_hidden)
-        self.momentum_weights_hidden_output = np.zeros_like(self.weights_hidden_output)
-        self.momentum_bias_output = np.zeros_like(self.bias_output)
+        #self.momentum_weights_hidden_output = np.zeros_like(self.weights_hidden_output)
+        #self.momentum_bias_output = np.zeros_like(self.bias_output)
 
         # Set activation functions
         self.activation = self.sigmoid if activation == 'sigmoid' else self.relu

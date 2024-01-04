@@ -20,9 +20,9 @@ def preprocessing(path):
     """
     # Read the training dataset
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
-    monk_dataset = pd.read_csv(path, sep=' ', names=col_names)
+    monk_dataset = pd.read_csv(path, sep=' ', header=None, names=col_names)
     monk_dataset.set_index('Id', inplace=True)
-    labels = monk_dataset.pop('class')
+    targets = monk_dataset.pop('class')
 
     # One-Hot-Encoding for all columns except the target column
     monk_dataset_encoded = pd.get_dummies(monk_dataset, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'], dtype=float)
@@ -31,13 +31,15 @@ def preprocessing(path):
     monk_dataset_array = monk_dataset_encoded.to_numpy(dtype=np.float32)
 
     # Convert the labels to a NumPy array
-    labels_array = labels.to_numpy(dtype=np.float32)
+    targets_array = targets.to_numpy(dtype=np.float32)
 
-    return monk_dataset_array, labels_array
+    return monk_dataset_array, targets_array
 
 # Preprocessing of the training dataset
-monk_dataset_array, labels_array = preprocessing(percorso_file_train_1)
+monk_dataset_array, targets_array = preprocessing(percorso_file_train_1)
 
 # Display the shapes of the preprocessed arrays
+print(monk_dataset_array)
+print(targets_array)
 print("Monk1-shape: ", monk_dataset_array.shape)
-print("Labels-shape: ", labels_array.shape)
+print("Labels-shape: ", targets_array.shape)
