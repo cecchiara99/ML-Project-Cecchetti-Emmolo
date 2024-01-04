@@ -1,10 +1,7 @@
 import pandas as pd
-from scipy import stats
-from statsmodels.stats.diagnostic import lilliefors
-from scipy.stats import anderson
 import numpy as np
-from statsmodels.stats.diagnostic import lilliefors
 from Layer import Layer
+from preprocessing import Preprocessing
 
 class NeuralNetwork:
     def __init__(self):
@@ -26,5 +23,14 @@ class NeuralNetwork:
         final_output = current_layer_output
         return final_output
 
+percorso_file_train_1 = './monk+s+problems/monks-1.train'
+percorso_file_train_2 = './monk+s+problems/monks-2.train'
+percorso_file_train_3 = './monk+s+problems/monks-3.train'
 
+# Preprocessing of the training dataset
+monk_dataset_array, labels_array = Preprocessing.preprocessing(percorso_file_train_1)
+
+# Display the shapes of the preprocessed arrays
+print("Monk1-shape: ", monk_dataset_array.shape)
+print("Labels-shape: ", labels_array.shape)
 
