@@ -35,9 +35,11 @@ class Preprocessing:
 
         return monk_dataset_array, targets_array
 
+"""
 # Preprocessing of the training dataset
-monk_dataset_array, targets_array = preprocessing(percorso_file_train_1)
+monk_dataset_array, targets_array = Preprocessing.preprocessing(percorso_file_train_1)
 
 # Display the shapes of the preprocessed arrays
 print("Monk1-shape: ", monk_dataset_array.shape)
 print("Labels-shape: ", targets_array.shape)
+"""

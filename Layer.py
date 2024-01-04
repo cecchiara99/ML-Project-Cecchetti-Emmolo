@@ -20,6 +20,7 @@ class Layer:
         # Initialize the layer with specified parameters
         self.input_size = input_size
         #self.hidden_size = hidden_size
+        hidden_size = 3 # prova
         self.output_size = output_size
         self.learning_rate = learning_rate
         self.momentum = momentum
@@ -29,20 +30,27 @@ class Layer:
         self.outputs = None
 
         # Initialize weights and biases
+        self.weights = np.random.randn(input_size, output_size)
+        self.bias = np.zeros((1, output_size))
+       
         self.weights_input_hidden = np.random.randn(input_size, hidden_size)
         self.bias_hidden = np.zeros((1, hidden_size))
         self.weights_hidden_output = np.random.randn(hidden_size, output_size)
         self.bias_output = np.zeros((1, output_size))
 
         # Initialize momentum terms
+        self.momentum_weights = np.zeros_like(self.weights)
+        self.momentum_bias = np.zeros_like(self.bias)
+        
         self.momentum_weights_input_hidden = np.zeros_like(self.weights_input_hidden)
         self.momentum_bias_hidden = np.zeros_like(self.bias_hidden)
-        #self.momentum_weights_hidden_output = np.zeros_like(self.weights_hidden_output)
-        #self.momentum_bias_output = np.zeros_like(self.bias_output)
+        self.momentum_weights_hidden_output = np.zeros_like(self.weights_hidden_output)
+        self.momentum_bias_output = np.zeros_like(self.bias_output)
 
         # Set activation functions
         self.activation = self.sigmoid if activation == 'sigmoid' else self.relu
         self.output_activation = self.sigmoid
+
 
     def sigmoid(self, x):
         """
@@ -91,3 +99,16 @@ class Layer:
             numpy.ndarray: Derivative of the ReLU function.
         """
         return np.where(x > 0, 1, 0)
+    
+
+    def forward_pass(self, inputs: np.ndarray):
+        self.inputs = inputs
+        print("Inputs shape:", inputs.shape)
+        print("Weights shape:", self.weights.shape)
+        print("Bias shape:", self.bias.shape)
+        linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
+        self.outputs = self.activation(linear_output) # Apply activation function
+        return self.outputs
+    
+
+    #def backward_pass():
