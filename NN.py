@@ -13,21 +13,24 @@ class NeuralNetwork:
         """
         self.layers = []
 
-    def add_layer(self, input_size, output_size):
+    def add_layer(self, input_size, output_size, activation='sigmoid', learning_rate=0.01, momentum=0.9, weight_decay=0.001):
         """
         Add a layer to the neural network.
 
         Args:
             input_size (int): Number of input neurons.
             output_size (int): Number of output neurons.
+            activation (str, optional): Activation function ('sigmoid' or 'relu').
+            learning_rate (float, optional): Learning rate for gradient descent.
+            momentum (float, optional): Momentum term for gradient descent.
+            weight_decay (float, optional): Weight decay term for regularization.
 
         Returns:
             None
         """
 
-        # Create a new layer and append it to the list of layers
-        layer = Layer(input_size, output_size)
-        self.layers.append(layer) 
+        layer = Layer(input_size, output_size, activation, learning_rate, momentum, weight_decay)
+        self.layers.append(layer)
 
     def forward(self, inputs):
         """
@@ -61,6 +64,8 @@ class NeuralNetwork:
         output_layer = self.layers[-1] # Get the output layer
         output_error = target - output_layer.outputs # Compute the error
         output_gradient = output_error * output_layer.activation_derivative(output_layer.outputs) # Compute the gradient of the error with respect to the output
+        # Altrimenti facciamo output_gradient = output_error  # Senza moltiplicare per la derivata della funzione di attivazione
+        # Questo è possibile perché la derivata della funzione di attivazione è già inclusa nel metodo backward_pass del layer.
 
         # Backpropagate the gradient through the network
         for layer in reversed(self.layers):

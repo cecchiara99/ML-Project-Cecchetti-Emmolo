@@ -32,6 +32,10 @@ class Layer:
 
         # Initialize weights and biases
         self.weights = np.random.randn(input_size, output_size)
+        # Altrimenti c'è un inizializzazione migliore secondo il web - Formula di inizializzazione di He.
+        # Questa formula si basa sulla scelta della funzione di attivazione
+        # e aiuta a mantenere la varianza stabile attraverso i livelli della rete.
+        # self.weights = np.random.randn(input_size, output_size) * np.sqrt(2 / input_size)
         self.bias = np.zeros((1, output_size))
        
         self.weights_input_hidden = np.random.randn(input_size, hidden_size)
@@ -162,9 +166,14 @@ class Layer:
         delta_weights = np.dot(self.inputs.T, output_gradient)
         delta_bias = np.sum(output_gradient, axis=0, keepdims=True)
 
+
+        # Update the weights and bias with momentum
+        self.momentum_weights = self.momentum * self.momentum_weights + learning_rate * delta_weights
+        self.momentum_bias = self.momentum * self.momentum_bias + learning_rate * delta_bias
+
         # Update the weights and bias
-        self.weights -= learning_rate * delta_weights
-        self.bias -= learning_rate * delta_bias
+        self.weights += self.momentum_weights
+        self.bias += self.momentum_bias
 
         # Restituisci il gradiente rispetto agli input per l'uso nelle retropropagazioni successive
         return delta_inputs
