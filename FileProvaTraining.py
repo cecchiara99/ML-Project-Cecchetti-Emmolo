@@ -51,6 +51,12 @@ def one_hot_encoding(data):
     encoded_data = pd.get_dummies(data, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'])
     return encoded_data
 
+
+# Specifica i percorsi dei tuoi file di addestramento e di test
+percorso_file_train_1 = './monk+s+problems/monks-1.train'
+percorso_file_train_2 = './monk+s+problems/monks-2.train'
+percorso_file_train_3 = './monk+s+problems/monks-3.train'
+
 # Carica i dati dal file CSV
 data = pd.read_csv(percorso_file_train_1, delimiter=' ', header=None, names=['target', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'ID'])
 
