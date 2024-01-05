@@ -28,6 +28,7 @@ class Layer:
 
         self.inputs = None
         self.outputs = None
+        self.delta = None
 
         # Initialize weights and biases
         self.weights = np.random.randn(input_size, output_size)
@@ -49,7 +50,7 @@ class Layer:
 
         # Set activation functions
         self.activation = self.sigmoid if activation == 'sigmoid' else self.relu
-        self.output_activation = self.sigmoid
+        self.activation_derivative = self.sigmoid_derivative if activation == 'sigmoid' else self.relu_derivative
 
 
     def sigmoid(self, x):
@@ -108,7 +109,39 @@ class Layer:
         print("Bias shape:", self.bias.shape)
         linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
         self.outputs = self.activation(linear_output) # Apply activation function
+
+        """
+            Gli output sembrano essere valori compresi tra 0 e 1, che è comune quando
+                si utilizzano funzioni di attivazione come la sigmoide.
+            Tuttavia, per interpretare meglio l'output, potresti voler arrotondarlo o
+                utilizzare una soglia per convertire i valori in previsioni binarie,
+                soprattutto se stai affrontando un problema di classificazione binaria.
+
+            Ad esempio, se vuoi convertire i valori dell'output in previsioni binarie basate
+                su una soglia, potresti fare qualcosa del genere:
+            ```python
+            threshold = 0.5
+            binary_predictions = (output > threshold).astype(int)
+            print("Binary predictions:", binary_predictions)
+            ```
+            In questo esempio, i valori superiori a 0.5 vengono convertiti in 1,
+                mentre quelli inferiori o uguali a 0.5 vengono convertiti in 0.
+                Tuttavia, la scelta della soglia dipende dal tuo problema specifico
+                e dalle tue esigenze.
+        """
         return self.outputs
     
+    def backward_pass(self, output_gradient, learning_rate):
+        # Compute the gradient respect to the inputs
+        delta_inputs = np.dot(output_gradient, self.weights.T)
 
-    #def backward_pass():
+        # Compute the gradient respect to the weights and bias
+        delta_weights = np.dot(self.inputs.T, output_gradient)
+        delta_bias = np.sum(output_gradient, axis=0, keepdims=True)
+
+        # Update the weights and bias
+        self.weights -= learning_rate * delta_weights
+        self.bias -= learning_rate * delta_bias
+
+        # Restituisci il gradiente rispetto agli input per l'uso nelle retropropagazioni successive
+        return delta_inputs
