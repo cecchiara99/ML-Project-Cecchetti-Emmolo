@@ -31,15 +31,15 @@ class Preprocessing:
         monk_dataset_array = monk_dataset_encoded.to_numpy(dtype=np.float32)
 
         # Convert the labels to a NumPy array
-        targets_array = targets.to_numpy(dtype=np.float32)
+        targets_array = targets.to_numpy(dtype=np.float32).reshape(-1, 1)
 
         return monk_dataset_array, targets_array
 
-"""
+
 # Preprocessing of the training dataset
 monk_dataset_array, targets_array = Preprocessing.preprocessing(percorso_file_train_1)
 
 # Display the shapes of the preprocessed arrays
 print("Monk1-shape: ", monk_dataset_array.shape)
-print("Labels-shape: ", targets_array.shape)
-"""
+print("Targets-shape: ", targets_array.shape)
+

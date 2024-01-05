@@ -103,10 +103,22 @@ class Layer:
     
 
     def forward_pass(self, inputs: np.ndarray):
+        """
+        Compute the forward pass of the layer.
+
+        Args:
+            inputs (numpy.ndarray): Inputs to the layer.
+
+        Returns:
+            numpy.ndarray: Outputs from the layer.
+        """
+
         self.inputs = inputs
+        """
         print("Inputs shape:", inputs.shape)
         print("Weights shape:", self.weights.shape)
         print("Bias shape:", self.bias.shape)
+        """
         linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
         self.outputs = self.activation(linear_output) # Apply activation function
 
@@ -132,6 +144,17 @@ class Layer:
         return self.outputs
     
     def backward_pass(self, output_gradient, learning_rate):
+        """
+        Backpropagate the gradient through the layer.
+
+        Args:
+            output_gradient (numpy.ndarray): Gradient of the error with respect to the output.
+            learning_rate (float): Learning rate for gradient descent.
+
+        Returns:
+            numpy.ndarray: Gradient of the error with respect to the input.
+        """
+
         # Compute the gradient respect to the inputs
         delta_inputs = np.dot(output_gradient, self.weights.T)
 

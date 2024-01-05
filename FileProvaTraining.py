@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from preprocessing import Preprocessing 
 
 class Layer:
     def __init__(self, input_size, output_size):
@@ -62,8 +63,11 @@ data = pd.read_csv(percorso_file_train_1, delimiter=' ', header=None, names=['ta
 
 # Applica One-Hot-Encoding ai dati
 encoded_data = one_hot_encoding(data[['a1', 'a2', 'a3', 'a4', 'a5', 'a6']])
+print(encoded_data)
 X = np.hstack([encoded_data.values, np.ones((encoded_data.shape[0], 1))])  # Aggiungi una colonna di bias
 y = data['target'].values.reshape(-1, 1)
+print(X.shape, y.shape)
+
 
 # Inizializza la rete neurale
 input_size = X.shape[1]
