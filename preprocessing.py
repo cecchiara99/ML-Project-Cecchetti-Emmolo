@@ -32,8 +32,8 @@ class Preprocessing:
         # Convert the DataFrame to a NumPy array
         monk_dataset_array = monk_dataset_encoded.to_numpy(dtype=np.float32)
 
-        # Convert the labels to a NumPy array
-        targets_array = targets.to_numpy(dtype=np.float32).reshape(-1, 1)
+        # Convert the labels to a NumPy array 
+        targets_array = targets.to_numpy(dtype=np.float32).reshape(-1, 1) # TODO: oppure 0,1
 
         return monk_dataset_array, targets_array
 

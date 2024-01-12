@@ -97,12 +97,12 @@ class NeuralNetwork:
             self.backward(gradient, learning_rate, weight_decay) # Backward pass
             
             # Stampa l'errore ogni 1000 epoche
-            if epoch % 1000 == 0:
+            if epoch % 100 == 0:
                 print(f'Epoch: {epoch}, MSE: {mse}') # Print the Mean Squared Error (MSE) for each epoch
         
         # Valuta le prestazioni del modello dopo l'addestramento
         evaluation_result = self.evaluate(input_data, targets)
-        print(f'Model Performance after Training: {evaluation_result}')
+        print(f'Model Performance after Training: {evaluation_result * 100}%')
 
     def evaluate(self, input_data, targets):
         """

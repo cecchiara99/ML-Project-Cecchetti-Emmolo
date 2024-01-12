@@ -19,8 +19,6 @@ class Layer:
 
         # Initialize the layer with specified parameters
         self.input_size = input_size
-        #self.hidden_size = hidden_size
-        hidden_size = 3 # prova
         self.output_size = output_size
         self.learning_rate = learning_rate
         self.momentum = momentum
@@ -31,26 +29,12 @@ class Layer:
         self.delta = None
 
         # Initialize weights and biases
-        self.weights = np.random.randn(input_size, output_size)
-        # Altrimenti c'è un inizializzazione migliore secondo il web - Formula di inizializzazione di He.
-        # Questa formula si basa sulla scelta della funzione di attivazione
-        # e aiuta a mantenere la varianza stabile attraverso i livelli della rete.
-        # self.weights = np.random.randn(input_size, output_size) * np.sqrt(2 / input_size)
+        self.weights = np.random.randn(input_size, output_size) * np.sqrt(2 / input_size) # Formula di inizializzazione di He.
         self.bias = np.zeros((1, output_size))
-       
-        self.weights_input_hidden = np.random.randn(input_size, hidden_size)
-        self.bias_hidden = np.zeros((1, hidden_size))
-        self.weights_hidden_output = np.random.randn(hidden_size, output_size)
-        self.bias_output = np.zeros((1, output_size))
 
         # Initialize momentum terms
         self.momentum_weights = np.zeros_like(self.weights)
         self.momentum_bias = np.zeros_like(self.bias)
-        
-        self.momentum_weights_input_hidden = np.zeros_like(self.weights_input_hidden)
-        self.momentum_bias_hidden = np.zeros_like(self.bias_hidden)
-        self.momentum_weights_hidden_output = np.zeros_like(self.weights_hidden_output)
-        self.momentum_bias_output = np.zeros_like(self.bias_output)
 
         # Set activation functions
         act_funcs = {
@@ -139,12 +123,7 @@ class Layer:
         Returns:
             numpy.ndarray: Derivative of the hyperbolic tangent function.
         """
-        return np.subtract(
-            [1.] * len(x),
-            np.power(np.tanh(x), 2)
-        )
-        # oppure return 1 - np.tanh(x) ** 2
-        # return 1 - np.tanh(x) ** 2
+        return 1 - np.tanh(x) ** 2
 
     def forward_pass(self, inputs: np.ndarray):
         """
@@ -166,6 +145,10 @@ class Layer:
         linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
         self.outputs = self.activation(linear_output) # Apply activation function
 
+        threshold = 0.5
+        binary_predictions = (self.outputs > threshold).astype(int)
+        print("Binary predictions:", binary_predictions)
+        
         """
             Gli output sembrano essere valori compresi tra 0 e 1, che è comune quando
                 si utilizzano funzioni di attivazione come la sigmoide.
