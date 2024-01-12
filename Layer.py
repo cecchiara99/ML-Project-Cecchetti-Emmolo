@@ -53,9 +53,21 @@ class Layer:
         self.momentum_bias_output = np.zeros_like(self.bias_output)
 
         # Set activation functions
-        self.activation = self.sigmoid if activation == 'sigmoid' else self.relu
-        self.activation_derivative = self.sigmoid_derivative if activation == 'sigmoid' else self.relu_derivative
+        act_funcs = {
+            'sigmoid': self.sigmoid,
+            'tanh': self.tanh,
+            'relu': self.relu
+        }
 
+        act_funcs_derivatives = {
+            'sigmoid': self.sigmoid_derivative,
+            'tanh': self.tanh_derivative,
+            'relu': self.relu_derivative
+        }
+
+        self.activation = act_funcs[activation]
+        self.activation_derivative = act_funcs_derivatives[activation]
+        # 
 
     def sigmoid(self, x):
         """
@@ -105,6 +117,34 @@ class Layer:
         """
         return np.where(x > 0, 1, 0)
     
+    def tanh(x):
+        """
+        Computes the hyperbolic tangent function (TanH).
+
+        Args:
+            x (numpy.ndarray): Input to the hyperbolic tangent function.
+
+        Returns:
+            numpy.ndarray: Output of the hyperbolic tangent function.
+        """
+        return np.tanh(x)
+
+    def tanh_derivative(x):
+        """
+        Computes the derivative of the hyperbolic tangent function (TanH).
+
+        Args:
+            x (numpy.ndarray): Output of the hyperbolic tangent function.
+
+        Returns:
+            numpy.ndarray: Derivative of the hyperbolic tangent function.
+        """
+        return np.subtract(
+            [1.] * len(x),
+            np.power(np.tanh(x), 2)
+        )
+        # oppure return 1 - np.tanh(x) ** 2
+        # return 1 - np.tanh(x) ** 2
 
     def forward_pass(self, inputs: np.ndarray):
         """
@@ -147,7 +187,7 @@ class Layer:
         """
         return self.outputs
     
-    def backward_pass(self, output_gradient, learning_rate):
+    def backward_pass(self, output_gradient, learning_rate, weight_decay):
         """
         Backpropagate the gradient through the layer.
 
@@ -163,9 +203,8 @@ class Layer:
         delta_inputs = np.dot(output_gradient, self.weights.T)
 
         # Compute the gradient respect to the weights and bias
-        delta_weights = np.dot(self.inputs.T, output_gradient)
+        delta_weights = np.dot(self.inputs.T, output_gradient) + weight_decay * self.weights
         delta_bias = np.sum(output_gradient, axis=0, keepdims=True)
-
 
         # Update the weights and bias with momentum
         self.momentum_weights = self.momentum * self.momentum_weights + learning_rate * delta_weights

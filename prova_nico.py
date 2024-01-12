@@ -17,8 +17,7 @@ input_data, targets = Preprocessing.preprocessing(percorso_file_train_1)
 input_size = input_data.shape[1]
 hidden_size = 8
 output_size = 1
-learning_rate = 0.01
-epochs = 1000
+
 
 # Create a neural network
 nn = NeuralNetwork()
@@ -28,4 +27,4 @@ nn.add_layer(input_size, hidden_size)
 nn.add_layer(hidden_size, output_size)
 
 # Train the neural network with Stochastic Gradient Descent (SGD)
-nn.train(input_data, targets, epochs, learning_rate)
+nn.train(input_data, targets, epochs=1000, learning_rate=0.01, momentum=0.9, weight_decay=0.001)

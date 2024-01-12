@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from Layer import Layer
 from preprocessing import Preprocessing
+import utils
 
 class NeuralNetwork:
     def __init__(self):
@@ -48,7 +49,7 @@ class NeuralNetwork:
             inputs = layer.forward_pass(inputs)
         return inputs
         
-    def backward(self, target, learning_rate):
+    def backward(self, target, learning_rate, weight_decay):
         """
         Backpropagate the error through the network.
 
@@ -69,9 +70,9 @@ class NeuralNetwork:
 
         # Backpropagate the gradient through the network
         for layer in reversed(self.layers):
-            output_gradient = layer.backward_pass(output_gradient, learning_rate)
+            output_gradient = layer.backward_pass(output_gradient, learning_rate, weight_decay)
     
-    def train(self, input_data, targets, epochs, learning_rate):
+    def train(self, input_data, targets, epochs, learning_rate, momentum, weight_decay):
         """
         Train the neural network with Stochastic Gradient Descent (SGD).
 
@@ -89,11 +90,38 @@ class NeuralNetwork:
         for epoch in range(epochs):
             predicted_output = self.forward(input_data) # Forward pass
             error = targets - predicted_output # Compute the error
-            self.backward(error, learning_rate) # Backward pass
+            # In teoria per classificazione binaria meglio lasciare così che usare la MSE
+
+            mse = np.mean(np.square(error)) # Compute the Mean Squared Error (MSE)
+            gradient = -2 * error / len(input_data) # Compute the gradient of the error
+            self.backward(gradient, learning_rate, weight_decay) # Backward pass
             
             # Stampa l'errore ogni 1000 epoche
             if epoch % 1000 == 0:
-                print(f'Epoch: {epoch}, Error: {np.mean(np.abs(error))}') # Print the error
+                print(f'Epoch: {epoch}, MSE: {mse}') # Print the Mean Squared Error (MSE) for each epoch
+        
+        # Valuta le prestazioni del modello dopo l'addestramento
+        evaluation_result = self.evaluate(input_data, targets)
+        print(f'Model Performance after Training: {evaluation_result}')
+
+    def evaluate(self, input_data, targets):
+        """
+        Evaluate the performance of the neural network.
+
+        Args:
+            input_data (ndarray): The input data.
+            targets (ndarray): The targets.
+
+        Returns:
+            float: Performance metric (e.g., Mean Euclidean Error, Accuracy).
+        """
+
+        # Compute the predicted output
+        predicted_output = self.forward(input_data)
+
+        # Calcola la metrica di valutazione appropriata in base al problema (ad esempio, MEE per regressione, Accuracy per classificazione)
+        evaluation_metric = utils.mean_squared_error(targets, predicted_output)
+        return evaluation_metric
 
 """
 percorso_file_train_1 = './monk+s+problems/monks-1.train'
