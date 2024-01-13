@@ -75,11 +75,7 @@ class Layer:
         Returns:
             numpy.ndarray: Output of the sigmoid function.
         """
-        # Limita l'input alla funzione sigmoid per evitare l'overflow
-        # se la funzione sigmoid ha un valore molto negativo, questo causa un overflow durante il calcolo dell'esponenziale.
-        # facciamo questo per limitare l'input della funzione sigmoid a un intervallo ragionevole
-        clipped_x = np.clip(x, -500, 500)
-        return 1 / (1 + np.exp(-clipped_x))
+        return 1 / (1 + np.exp(x))
 
     def sigmoid_derivative(self, x):
         """
