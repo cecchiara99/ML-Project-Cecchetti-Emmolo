@@ -159,9 +159,9 @@ class Layer:
         linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
         self.outputs = self.activation(linear_output) # Apply activation function
 
-        threshold = 0.5
+        """threshold = 0.5
         binary_predictions = (self.outputs > threshold).astype(int)
-        print("Binary predictions:", binary_predictions)
+        print("Binary predictions:", binary_predictions)"""
 
         """
             Gli output sembrano essere valori compresi tra 0 e 1, che è comune quando
