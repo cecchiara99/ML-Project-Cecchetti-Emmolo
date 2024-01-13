@@ -13,7 +13,8 @@ def mean_squared_error(y_true, y_pred):
     Returns:
         float: Mean Squared Error (MSE).
     """
-    mse = np.mean((y_true - y_pred) ** 2)
+    error = y_true - y_pred
+    mse = np.mean(np.square(error))
     return mse
 
 def normalize_data(data_matrix, labels):

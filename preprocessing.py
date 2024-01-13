@@ -22,7 +22,7 @@ class Preprocessing:
         # Read the training dataset
         col_names = ['target', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
         monk_dataset = pd.read_csv(path, sep=' ', header=None, names=col_names)
-        monk_dataset.set_index('Id', inplace=True)
+        monk_dataset.set_index('Id', inplace=True) 
         targets = monk_dataset.pop('target')
         #print(monk_dataset)
 
@@ -33,7 +33,7 @@ class Preprocessing:
         monk_dataset_array = monk_dataset_encoded.to_numpy(dtype=np.float32)
 
         # Convert the labels to a NumPy array 
-        targets_array = targets.to_numpy(dtype=np.float32).reshape(-1, 1) # TODO: oppure 0,1
+        targets_array = targets.to_numpy(dtype=np.float32).reshape(-1, 1) # reshape for having (n,1) instead of (n,)
 
         return monk_dataset_array, targets_array
 
@@ -42,6 +42,8 @@ class Preprocessing:
 monk_dataset_array, targets_array = Preprocessing.preprocessing(percorso_file_train_1)
 
 # Display the shapes of the preprocessed arrays
+#print(monk_dataset_array)
+#print(targets_array)
 print("Monk1-shape: ", monk_dataset_array.shape)
 print("Targets-shape: ", targets_array.shape)
 

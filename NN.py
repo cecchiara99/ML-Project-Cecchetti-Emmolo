@@ -90,9 +90,7 @@ class NeuralNetwork:
         for epoch in range(epochs):
             predicted_output = self.forward(input_data) # Forward pass
             error = targets - predicted_output # Compute the error
-            # In teoria per classificazione binaria meglio lasciare così che usare la MSE
-
-            mse = np.mean(np.square(error)) # Compute the Mean Squared Error (MSE)
+            mse = np.mean(np.square(error)) # Compute the Mean Squared Error (MSE)"""
             gradient = -2 * error / len(input_data) # Compute the gradient of the error
             self.backward(gradient, learning_rate, weight_decay) # Backward pass
             
@@ -113,7 +111,7 @@ class NeuralNetwork:
             targets (ndarray): The targets.
 
         Returns:
-            float: Performance metric (e.g., Mean Euclidean Error, Accuracy).
+            float: Performance metric (Mean Euclidean Error).
         """
 
         # Compute the predicted output

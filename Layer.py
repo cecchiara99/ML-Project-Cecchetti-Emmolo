@@ -23,14 +23,23 @@ class Layer:
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.weight_decay = weight_decay
-
         self.inputs = None
         self.outputs = None
         self.delta = None
 
         # Initialize weights and biases
-        self.weights = np.random.randn(input_size, output_size) * np.sqrt(2 / input_size) # Formula di inizializzazione di He.
+        self.weights = np.random.randn(input_size, output_size)
         self.bias = np.zeros((1, output_size))
+
+        """if activation == 'relu':
+            # Initialize weights and biases for ReLU activation
+            self.weights = np.random.randn(input_size, output_size) * np.sqrt(2 / input_size) # He initialization
+            self.bias = np.zeros((1, output_size)) # Initialize bias to zero because ReLU is centered at zero
+        elif activation in ['sigmoid', 'tanh']:
+            self.weights = np.random.randn(input_size, output_size) * np.sqrt(2 / (input_size + output_size)) # Xavier initialization
+            self.bias = np.ones((1, output_size)) # Initialize bias to one because sigmoid and tanh are not centered at zero
+        else:
+            raise ValueError("Activation function not supported.")"""
 
         # Initialize momentum terms
         self.momentum_weights = np.zeros_like(self.weights)
@@ -51,7 +60,6 @@ class Layer:
 
         self.activation = act_funcs[activation]
         self.activation_derivative = act_funcs_derivatives[activation]
-        # 
 
     def sigmoid(self, x):
         """
@@ -63,7 +71,11 @@ class Layer:
         Returns:
             numpy.ndarray: Output of the sigmoid function.
         """
-        return 1 / (1 + np.exp(-x))
+        # Limita l'input alla funzione sigmoid per evitare l'overflow
+        # se la funzione sigmoid ha un valore molto negativo, questo causa un overflow durante il calcolo dell'esponenziale.
+        # facciamo questo per limitare l'input della funzione sigmoid a un intervallo ragionevole
+        clipped_x = np.clip(x, -500, 500)
+        return 1 / (1 + np.exp(-clipped_x))
 
     def sigmoid_derivative(self, x):
         """
@@ -101,7 +113,7 @@ class Layer:
         """
         return np.where(x > 0, 1, 0)
     
-    def tanh(x):
+    def tanh(self, x):
         """
         Computes the hyperbolic tangent function (TanH).
 
@@ -113,7 +125,7 @@ class Layer:
         """
         return np.tanh(x)
 
-    def tanh_derivative(x):
+    def tanh_derivative(self, x):
         """
         Computes the derivative of the hyperbolic tangent function (TanH).
 
@@ -125,7 +137,7 @@ class Layer:
         """
         return 1 - np.tanh(x) ** 2
 
-    def forward_pass(self, inputs: np.ndarray):
+    def forward_pass(self, inputs):
         """
         Compute the forward pass of the layer.
 
@@ -137,18 +149,16 @@ class Layer:
         """
 
         self.inputs = inputs
-        """
-        print("Inputs shape:", inputs.shape)
-        print("Weights shape:", self.weights.shape)
-        print("Bias shape:", self.bias.shape)
-        """
+        #print("Inputs shape:", inputs.shape)
+        #print("Weights shape:", self.weights.shape)
+        #print("Bias shape:", self.bias.shape)
         linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
         self.outputs = self.activation(linear_output) # Apply activation function
 
         threshold = 0.5
         binary_predictions = (self.outputs > threshold).astype(int)
         print("Binary predictions:", binary_predictions)
-        
+
         """
             Gli output sembrano essere valori compresi tra 0 e 1, che è comune quando
                 si utilizzano funzioni di attivazione come la sigmoide.

@@ -23,10 +23,9 @@ output_size = 1
 nn = NeuralNetwork()
 
 # Add layers to the neural network
-nn.add_layer(input_size, hidden_size) # hidden layer
-nn.add_layer(hidden_size, hidden_size) # hidden layer
-nn.add_layer(hidden_size, output_size) # output layer
+nn.add_layer(input_size, hidden_size, "sigmoid") # hidden layer
+nn.add_layer(hidden_size, output_size, "tanh") # output layer
 
 
 # Train the neural network with Stochastic Gradient Descent (SGD)
-nn.train(input_data, targets, epochs=1000, learning_rate=0.001, momentum=0.1, weight_decay=1)
+nn.train(input_data, targets, epochs=1000, learning_rate=0.8, momentum=0.5, weight_decay=0.001)
