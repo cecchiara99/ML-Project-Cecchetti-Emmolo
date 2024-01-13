@@ -8,6 +8,8 @@ percorso_file_train_1 = './monk+s+problems/monks-1.train'
 percorso_file_train_2 = './monk+s+problems/monks-2.train'
 percorso_file_train_3 = './monk+s+problems/monks-3.train'
 
+percorso_file_train_cup = './cup+problem/ML-CUP23-TR.csv'
+
 class Preprocessing:
     def preprocessing(path):
         """
@@ -36,13 +38,33 @@ class Preprocessing:
 
         return monk_dataset_array, targets_array
 
+    
+    def preprocessing_cup(path):
+        # Read the training dataset
+        col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'target_x', 'target_y', 'target_z']
+        cup_dataset = pd.read_csv(path, sep=',', names=col_names, skiprows=range(7), usecols=range(0, 11))
+        cup_dataset.set_index('Id', inplace=True) 
+        targets = pd.read_csv(path, sep=',', names=col_names, skiprows=range(7), usecols=range(11, 14))
+
+        print(cup_dataset)
+        print(targets)
+
+        return cup_dataset, targets
 
 # Preprocessing of the training dataset
 monk_dataset_array, targets_array = Preprocessing.preprocessing(percorso_file_train_1)
 
-# Display the shapes of the preprocessed arrays
 #print(monk_dataset_array)
 #print(targets_array)
 print("Monk1-shape: ", monk_dataset_array.shape)
 print("Targets-shape: ", targets_array.shape)
+
+# Preprocessing of the training dataset
+cup_dataset, targets = Preprocessing.preprocessing_cup(percorso_file_train_cup)
+
+print("Cup-shape: ", cup_dataset.shape)
+print("Targets-shape: ", targets.shape)
+
+
+
 
