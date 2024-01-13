@@ -88,15 +88,17 @@ class NeuralNetwork:
 
         # Train the neural network for the specified number of epochs
         for epoch in range(epochs):
+            print("Targets: ",targets)
             predicted_output = self.forward(input_data) # Forward pass
             error = targets - predicted_output # Compute the error
+            print("predicted_output:", predicted_output)
             mse = np.mean(np.square(error)) # Compute the Mean Squared Error (MSE)"""
             gradient = -2 * error / len(input_data) # Compute the gradient of the error
             self.backward(gradient, learning_rate, weight_decay) # Backward pass
             
             # Stampa l'errore ogni 1000 epoche
             if epoch % 100 == 0:
-                print(f'Epoch: {epoch}, MSE: {mse}') # Print the Mean Squared Error (MSE) for each epoch
+                print(f'Epoch: {epoch}, MSE: {mse}, Error: {error}') # Print the Mean Squared Error (MSE) for each epoch
         
         # Valuta le prestazioni del modello dopo l'addestramento
         evaluation_result = self.evaluate(input_data, targets)
@@ -119,6 +121,7 @@ class NeuralNetwork:
 
         # Calcola la metrica di valutazione appropriata in base al problema (ad esempio, MEE per regressione, Accuracy per classificazione)
         evaluation_metric = utils.mean_squared_error(targets, predicted_output)
+        print("Evaluation metric:", evaluation_metric)
         return evaluation_metric
 
 """

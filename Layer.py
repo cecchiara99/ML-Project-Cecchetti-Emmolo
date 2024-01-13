@@ -28,7 +28,9 @@ class Layer:
         self.delta = None
 
         # Initialize weights and biases
-        self.weights = np.random.randn(input_size, output_size)
+        self.weights = np.random.uniform(low=0.1, high=0.9, size=(input_size,output_size))
+
+        #self.weights = np.random.randn(input_size, output_size)
         self.bias = np.zeros((1, output_size))
 
         """if activation == 'relu':
@@ -155,9 +157,9 @@ class Layer:
         linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
         self.outputs = self.activation(linear_output) # Apply activation function
 
-        threshold = 0.5
+        """threshold = 0.5
         binary_predictions = (self.outputs > threshold).astype(int)
-        print("Binary predictions:", binary_predictions)
+        print("Binary predictions:", binary_predictions)"""
 
         """
             Gli output sembrano essere valori compresi tra 0 e 1, che è comune quando
@@ -178,6 +180,7 @@ class Layer:
                 Tuttavia, la scelta della soglia dipende dal tuo problema specifico
                 e dalle tue esigenze.
         """
+        print("Outpts: ", self.outputs)
         return self.outputs
     
     def backward_pass(self, output_gradient, learning_rate, weight_decay):

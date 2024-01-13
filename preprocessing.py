@@ -24,7 +24,6 @@ class Preprocessing:
         monk_dataset = pd.read_csv(path, sep=' ', header=None, names=col_names)
         monk_dataset.set_index('Id', inplace=True) 
         targets = monk_dataset.pop('target')
-        #print(monk_dataset)
 
         # One-Hot-Encoding for all columns except the target column
         monk_dataset_encoded = pd.get_dummies(monk_dataset, columns=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'], dtype=float)
