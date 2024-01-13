@@ -21,7 +21,7 @@ class NeuralNetwork:
         Args:
             input_size (int): Number of input neurons.
             output_size (int): Number of output neurons.
-            activation (str, optional): Activation function ('sigmoid' or 'relu').
+            activation (str, optional): Activation function
             learning_rate (float, optional): Learning rate for gradient descent.
             momentum (float, optional): Momentum term for gradient descent.
             weight_decay (float, optional): Weight decay term for regularization.
@@ -45,9 +45,10 @@ class NeuralNetwork:
         """
 
         # Compute the forward pass through each layer
+        x = inputs
         for layer in self.layers:
-            inputs = layer.forward_pass(inputs)
-        return inputs
+            x = layer.forward_pass(x)
+        return x
         
     def backward(self, target, learning_rate, weight_decay):
         """
