@@ -28,4 +28,4 @@ nn.add_layer(hidden_size, output_size, "tanh") # output layer
 
 
 # Train the neural network with Stochastic Gradient Descent (SGD)
-nn.train(input_data, targets, epochs=1000, learning_rate=0.8, momentum=0.5, weight_decay=0.001)
+nn.train(input_data, targets, epochs=1000, learning_rate=0.01, momentum=0.9, weight_decay=0.01)

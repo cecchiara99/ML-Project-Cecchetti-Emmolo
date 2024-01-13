@@ -20,12 +20,14 @@ class Layer:
         # Initialize the layer with specified parameters
         self.input_size = input_size
         self.output_size = output_size
+        self.activation = None
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.weight_decay = weight_decay
         self.inputs = None
         self.outputs = None
         self.delta = None
+        
 
         # Initialize weights and biases
         self.weights = np.random.randn(input_size, output_size)
@@ -154,10 +156,6 @@ class Layer:
         #print("Bias shape:", self.bias.shape)
         linear_output = np.dot(inputs, self.weights) + self.bias # Multiply by weights and add bias
         self.outputs = self.activation(linear_output) # Apply activation function
-
-        threshold = 0.5
-        binary_predictions = (self.outputs > threshold).astype(int)
-        print("Binary predictions:", binary_predictions)
 
         """
             Gli output sembrano essere valori compresi tra 0 e 1, che è comune quando
