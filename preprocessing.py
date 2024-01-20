@@ -52,18 +52,18 @@ class Preprocessing:
         return cup_dataset, targets
 
 # Preprocessing of the training dataset
-monk_dataset_array, targets_array = Preprocessing.preprocessing(percorso_file_train_1)
+"""monk_dataset_array, targets_array = Preprocessing.preprocessing(percorso_file_train_1)
 
 #print(monk_dataset_array)
 #print(targets_array)
-print("Monk1-shape: ", monk_dataset_array.shape)
+print("Monk-shape: ", monk_dataset_array.shape)
 print("Targets-shape: ", targets_array.shape)
 
 # Preprocessing of the training dataset
 cup_dataset, targets = Preprocessing.preprocessing_cup(percorso_file_train_cup)
 
 print("Cup-shape: ", cup_dataset.shape)
-print("Targets-shape: ", targets.shape)
+print("Targets-shape: ", targets.shape)"""
 
 
 
