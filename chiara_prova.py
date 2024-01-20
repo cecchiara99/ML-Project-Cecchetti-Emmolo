@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class NeuralNetwork:
-    def __init__(self, input_size, hidden_size, learning_rate=0.1, epochs=1000, batch_size=16, momentum=0.5, lambda_reg=0.01):
+    def __init__(self, input_size, hidden_size, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.9, lambda_reg=0.01):
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.learning_rate = learning_rate
@@ -18,9 +18,9 @@ class NeuralNetwork:
 
     def initialize_parameters(self):
         np.random.seed(42)
-        weights_input_hidden = np.random.randn(self.input_size, self.hidden_size)
+        weights_input_hidden = np.random.uniform(low=0.1, high=0.9, size=(self.input_size,self.hidden_size))
         biases_hidden = np.zeros((1, self.hidden_size))
-        weights_hidden_output = np.random.randn(self.hidden_size, 1)
+        weights_hidden_output = np.random.uniform(low=0.1, high=0.9, size=(self.hidden_size, 1))
         biases_output = np.zeros((1, 1))
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
 
@@ -103,26 +103,26 @@ class NeuralNetwork:
         plt.ylabel('Loss')
         plt.title('Learning Curve')
         plt.legend()
-        plt.savefig('learning_curve.png')  # Save the plot to a file
+        plt.savefig('learning_curve.png')  
         plt.close()
 
-    def predict(self, X):
+"""    def predict(self, X):
         _, output = self.forward_propagation(X)
-        return output
+        return output"""
 
 percorso_file_train_1 = './monk+s+problems/monks-1.train'
 percorso_file_train_2 = './monk+s+problems/monks-2.train'
 percorso_file_train_3 = './monk+s+problems/monks-3.train'
 
-X_train, y_train = Preprocessing.preprocessing(percorso_file_train_2)
+X_train, y_train = Preprocessing.preprocessing(percorso_file_train_1)
 
 print("Monk-shape: ", X_train.shape)
 print("Targets-shape: ", y_train.shape)
 
 input_size = X_train.shape[1]
-hidden_size = 3
+hidden_size = 4
 
-nn = NeuralNetwork(input_size, hidden_size, learning_rate=0.01, epochs=1000, batch_size=32, momentum=0.7, lambda_reg=0.01)
+nn = NeuralNetwork(input_size, hidden_size, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.5, lambda_reg=0.01)
 nn.train(X_train, y_train)
 
 
