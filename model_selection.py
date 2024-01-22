@@ -1,24 +1,30 @@
 import numpy as np
 
-def k_fold_cross_validation(data, hyperparameters, K):
+def k_fold_cross_validation(network, data_X, data_y, hyperparameters, K):
     best_theta = None
     best_model = None
     best_validation_error = float('inf')
 
     for theta in hyperparameters:
-        total_validation_error = 0.0
+        tot_validation_error = 0.0
 
         for k in range(K):
             # Split data into training and validation sets
-            D_k, D_k_bar = split_data_k_fold(data, K, k)
+            D_k_bar_X, D_k_bar_y, D_k_X, D_k_y = split_data_into_folds(data_X, data_y, K, k)
 
             # Train the model on the counterpart
-            h_theta_star = train_model(theta, D_k_bar)
+            network.set_hyperparameters(theta)
+            network.train(D_k_bar_X, D_k_bar_y)
 
             # Estimate risk on the validation part
-            validation_error = estimate_validation_error(h_theta_star, D_k)
+            validation_error = network.evaluate(D_k_X, D_k_y)
 
             tot_validation_error += validation_error
+
+            # Reset the model
+            #network = NeuralNetwork()
+            # Oppure
+            #network = network.initialize_parameters()
 
         # Global estimation of the risk
         avg_validation_error = tot_validation_error / K
@@ -27,46 +33,67 @@ def k_fold_cross_validation(data, hyperparameters, K):
         if avg_validation_error < best_validation_error:
             best_validation_error = avg_validation_error
             best_theta = theta
-            best_model = h_theta_star
+            #best_model = network.copy_model()
 
     return best_theta, best_model
 
-def split_data_k_fold(data, K, k):
-    n = len(data)
-    fold_size = n // K
+def split_data_into_folds(data_X, data_y, K, k):
+    """
+    Split the data into K folds and return the k-th fold as validation set and the rest as training set
+
+    :param data_X: the input data
+    :param data_y: the target data
+    :param K: number of folds
+    :param k: the k-th fold to use as validation set
+
+    :return: the training and validation sets
+    """
+    n_samples = len(data_X)
+    fold_size = n_samples // K
 
     start = k * fold_size
-    end = (k + 1) * fold_size if k != K - 1 else n
+    end = (k + 1) * fold_size if k != K - 1 else n_samples # last fold can be bigger
 
-    D_k = data.iloc[start:end]
-    D_k_bar = data.drop(D_k.index)
-    #D_k = data[start:end]
-    #D_k_bar = np.concatenate([data[:start], data[end:]])
+    # Select the k-th fold as validation set
+    val_data_X = data_X[start:end]
+    val_data_y = data_y[start:end]
 
-    return D_k, D_k_bar
+    # Use the rest as training set
+    train_data_X = np.concatenate([data_X[:start], data_X[end:]])
+    train_data_y = np.concatenate([data_y[:start], data_y[end:]])
 
-def train_model(theta, data):
-    # Return the best model for hyperparameter theta
-    pass
+    return train_data_X, train_data_y, val_data_X, val_data_y
 
-def estimate_validation_error(model, validation_data):
-    # Return the validation error
-    pass
-
-def model_selection(data, hyperparameters, K):
+def model_selection(network, data, hyperparameters, K):
     best_theta, best_model = k_fold_cross_validation(data, hyperparameters, K)
 
     # Retrain the best model on the entire dataset
-    final_model = train_model(best_theta, data)
+    network.set_hyperparameters(best_theta)
+    final_model = network.train(best_theta, data)
 
-    return final_model
+    return final_model # or "return network"
 
 def model_assessment(final_model, test_data):
     # Return the test error
     pass
 
+"""
+DA METTE DENTRO NeuralNetwork
+def copy_model(self):
+    # Crea una nuova istanza del modello
+    new_model = NeuralNetwork(self.input_size, self.hidden_size, self.output_size)
 
+    # Copia i parametri del modello corrente nel nuovo modello
+    # Questo può variare a seconda della struttura del tuo modello
+    new_model.weights_input_hidden = np.copy(self.weights_input_hidden)
+    new_model.weights_hidden_output = np.copy(self.weights_hidden_output)
+    new_model.bias_hidden = np.copy(self.bias_hidden)
+    new_model.bias_output = np.copy(self.bias_output)
 
+    # Altri parametri da copiare, se necessario
+
+    return new_model
+"""
 
 
 hyperparameters = ...
