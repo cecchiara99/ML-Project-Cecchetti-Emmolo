@@ -1,6 +1,7 @@
 import numpy as np
 from preprocessing import Preprocessing
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 import numpy as np
 
@@ -18,9 +19,9 @@ class NeuralNetwork:
 
     def initialize_parameters(self):
         np.random.seed(42)
-        weights_input_hidden = np.random.uniform(low=0.1, high=0.9, size=(self.input_size,self.hidden_size))
+        weights_input_hidden = np.random.uniform(low=-0.3, high=0.3, size=(self.input_size,self.hidden_size))
         biases_hidden = np.ones((1, self.hidden_size))
-        weights_hidden_output = np.random.uniform(low=0.1, high=0.9, size=(self.hidden_size, 1))
+        weights_hidden_output = np.random.uniform(low=-0.3, high=0.3, size=(self.hidden_size, 1))
         biases_output = np.ones((1, 1))
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
 
@@ -28,7 +29,7 @@ class NeuralNetwork:
         return np.tanh(x)
     
     def sigmoid(self, x):
-        return 1 / (1 + np.exp(x))
+        return 1 / (1 + np.exp(-x))
 
     def tanh_derivative(self, x):
         return 1 - np.tanh(x)**2
@@ -105,6 +106,74 @@ class NeuralNetwork:
         plt.legend()
         plt.savefig('learning_curve.png')  
         plt.close()
+    
+    def cross_validate(self, X, y, test_size=0.2):
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=test_size, random_state=42)
+        train_losses, val_losses, accuracies = [], [], []
+
+        for epoch in range(self.epochs):
+            indices = np.random.permutation(len(y_train))
+            X_shuffled = X_train[indices]
+            y_shuffled = y_train[indices]
+
+            for i in range(0, len(y_train), self.batch_size):
+                X_batch = X_shuffled[i:i + self.batch_size]
+                y_batch = y_shuffled[i:i + self.batch_size]
+
+                hidden_layer_output, output = self.forward_propagation(X_batch)
+                loss = self.calculate_loss(y_batch, output)
+                self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
+
+            train_losses.append(loss)
+
+            # Evaluate on validation set
+            val_loss = self.evaluate(X_val, y_val)
+            val_losses.append(val_loss)
+
+            # Compute accuracy on validation set
+            val_predictions = self.predict(X_val)
+            accuracy = self.compute_accuracy(y_val, val_predictions)
+            accuracies.append(accuracy)
+
+            if epoch % 100 == 0:
+                print(f"Epoch {epoch}, Training Loss: {loss}, Validation Loss: {val_loss}, Accuracy: {accuracy}")
+
+        # Plotting
+        plt.figure(figsize=(12, 4))
+        plt.subplot(1, 2, 1)
+        plt.plot(range(self.epochs), train_losses, label='Training Loss')
+        plt.plot(range(self.epochs), val_losses, label='Validation Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Learning Curve')
+        plt.legend()
+        plt.savefig('learning_curve.png')  
+        plt.close()
+
+        plt.subplot(1, 2, 2)
+        plt.plot(range(self.epochs), accuracies, label='Validation Accuracy')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title('Validation Accuracy')
+        plt.legend()
+        plt.savefig('Accuracy_validation.png')  
+        plt.close()
+
+        
+
+        return val_losses[-1], accuracies[-1]
+
+    def predict(self, X):
+        _, output = self.forward_propagation(X)
+        return np.round(output)
+
+    def compute_accuracy(self, y_true, y_pred):
+        return np.mean(y_true == y_pred)
+    
+    def evaluate(self, X, y):
+        _, output = self.forward_propagation(X)
+        loss = self.calculate_loss(y, output)
+        return loss
 
 
 percorso_file_train_1 = './monk+s+problems/monks-1.train'
@@ -117,7 +186,12 @@ print("Monk-shape: ", X_train.shape)
 print("Targets-shape: ", y_train.shape)
 
 input_size = X_train.shape[1]
+
 hidden_size = 3
 
-nn = NeuralNetwork(input_size, hidden_size, learning_rate=0.76, epochs=500, batch_size=128, momentum=0.83, lambda_reg=0.01)
+nn = NeuralNetwork(input_size, hidden_size, learning_rate=0.9, epochs=450, batch_size=X_train.shape[0], momentum=0.9, lambda_reg=0.000000001)
 nn.train(X_train, y_train)
+
+# Cross-validate
+validation_loss, accuracy = nn.cross_validate(X_train, y_train)
+print(f"Final Validation Loss: {validation_loss}, Final Accuracy: {accuracy}")
