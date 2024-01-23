@@ -1,4 +1,6 @@
 import numpy as np
+import copy as cp
+from NN import NeuralNetwork
 
 def k_fold_cross_validation(network, data_X, data_y, hyperparameters, K):
     best_theta = None
@@ -13,7 +15,7 @@ def k_fold_cross_validation(network, data_X, data_y, hyperparameters, K):
             D_k_bar_X, D_k_bar_y, D_k_X, D_k_y = split_data_into_folds(data_X, data_y, K, k)
 
             # Train the model on the counterpart
-            network.set_hyperparameters(theta)
+            network = NeuralNetwork()
             network.train(D_k_bar_X, D_k_bar_y)
 
             # Estimate risk on the validation part
@@ -22,9 +24,7 @@ def k_fold_cross_validation(network, data_X, data_y, hyperparameters, K):
             tot_validation_error += validation_error
 
             # Reset the model
-            #network = NeuralNetwork()
-            # Oppure
-            #network = network.initialize_parameters()
+            network = NeuralNetwork()
 
         # Global estimation of the risk
         avg_validation_error = tot_validation_error / K
@@ -65,10 +65,11 @@ def split_data_into_folds(data_X, data_y, K, k):
     return train_data_X, train_data_y, val_data_X, val_data_y
 
 def model_selection(network, data, hyperparameters, K):
+    # Select the best hyperparameters using K-fold cross validation
     best_theta, best_model = k_fold_cross_validation(data, hyperparameters, K)
 
-    # Retrain the best model on the entire dataset
-    network.set_hyperparameters(best_theta)
+    # Train the model on the whole training set using the best hyperparameters
+    network.NeuralNetwork(best_theta)
     final_model = network.train(best_theta, data)
 
     return final_model # or "return network"
@@ -101,8 +102,9 @@ data = ...
 K = ...
 test_data = ...
 
-# Perform model selection
+# Train the model on the training set and select the best model
 best_model = model_selection(data, hyperparameters, K)
-# Evaluate the final model on the test set
+
+# Assess the performance of the best model on the test set
 test_error = model_assessment(best_model, test_data)
 print(f"Final Test Error: {test_error}")
