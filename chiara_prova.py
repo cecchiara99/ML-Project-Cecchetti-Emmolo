@@ -1,7 +1,7 @@
 import numpy as np
 from preprocessing import Preprocessing
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
 
 import numpy as np
 
@@ -192,5 +192,5 @@ nn = NeuralNetwork(input_size, hidden_size, learning_rate=0.9, epochs=450, batch
 nn.train(X_train, y_train)
 
 # Cross-validate
-validation_loss, accuracy = nn.cross_validate(X_train, y_train)
-print(f"Final Validation Loss: {validation_loss}, Final Accuracy: {accuracy}")
+#validation_loss, accuracy = nn.cross_validate(X_train, y_train)
+#print(f"Final Validation Loss: {validation_loss}, Final Accuracy: {accuracy}")
