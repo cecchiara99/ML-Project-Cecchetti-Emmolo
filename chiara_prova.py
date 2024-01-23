@@ -19,9 +19,9 @@ class NeuralNetwork:
     def initialize_parameters(self):
         np.random.seed(42)
         weights_input_hidden = np.random.uniform(low=0.1, high=0.9, size=(self.input_size,self.hidden_size))
-        biases_hidden = np.zeros((1, self.hidden_size))
+        biases_hidden = np.ones((1, self.hidden_size))
         weights_hidden_output = np.random.uniform(low=0.1, high=0.9, size=(self.hidden_size, 1))
-        biases_output = np.zeros((1, 1))
+        biases_output = np.ones((1, 1))
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
 
     def tanh(self, x):
@@ -106,9 +106,6 @@ class NeuralNetwork:
         plt.savefig('learning_curve.png')  
         plt.close()
 
-"""    def predict(self, X):
-        _, output = self.forward_propagation(X)
-        return output"""
 
 percorso_file_train_1 = './monk+s+problems/monks-1.train'
 percorso_file_train_2 = './monk+s+problems/monks-2.train'
@@ -120,9 +117,7 @@ print("Monk-shape: ", X_train.shape)
 print("Targets-shape: ", y_train.shape)
 
 input_size = X_train.shape[1]
-hidden_size = 4
+hidden_size = 3
 
-nn = NeuralNetwork(input_size, hidden_size, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.5, lambda_reg=0.01)
+nn = NeuralNetwork(input_size, hidden_size, learning_rate=0.76, epochs=500, batch_size=128, momentum=0.83, lambda_reg=0.01)
 nn.train(X_train, y_train)
-
-
