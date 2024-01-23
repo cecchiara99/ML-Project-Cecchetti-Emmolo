@@ -107,6 +107,7 @@ class NeuralNetwork:
         plt.savefig('learning_curve.png')  
         plt.close()
     
+    
     def cross_validate(self, X, y, test_size=0.2):
         X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=test_size, random_state=42)
         train_losses, val_losses, accuracies = [], [], []
@@ -162,7 +163,8 @@ class NeuralNetwork:
         
 
         return val_losses[-1], accuracies[-1]
-
+        
+    
     def predict(self, X):
         _, output = self.forward_propagation(X)
         return np.round(output)
