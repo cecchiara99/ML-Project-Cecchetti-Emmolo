@@ -41,7 +41,7 @@ def k_fold_cross_validation(input_size, hidden_size, data_X, data_y, hyperparams
         if avg_validation_error < best_validation_error:
             best_validation_error = avg_validation_error
             best_theta = theta
-            best_model = cp.copy(network)
+            best_model = cp.deepcopy(network)
 
     return best_theta, best_model
 

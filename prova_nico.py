@@ -45,7 +45,7 @@ input_size = data_X.shape[1]
 hidden_size = 3
 
 hyperparams = [
-    {'learning_rate': 0.1, 'epochs': 1000, 'batch_size': 32, 'momentum': 0.9, 'lambda_reg': 0.01}
+    {'learning_rate': 0.9, 'epochs': 1000, 'batch_size': data_X.shape[0], 'momentum': 0.9, 'lambda_reg': 0.000000001}
 ]
 
 # Train the model on the training set and select the best model
