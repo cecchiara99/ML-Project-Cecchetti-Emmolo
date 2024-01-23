@@ -106,7 +106,7 @@ class NeuralNetwork:
         plt.legend()
         plt.savefig('learning_curve.png')  
         plt.close()
-    
+    """
     def cross_validate(self, X, y, test_size=0.2):
         X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=test_size, random_state=42)
         train_losses, val_losses, accuracies = [], [], []
@@ -158,9 +158,6 @@ class NeuralNetwork:
         plt.legend()
         plt.savefig('Accuracy_validation.png')  
         plt.close()
-
-        
-
         return val_losses[-1], accuracies[-1]
 
     def predict(self, X):
@@ -170,6 +167,7 @@ class NeuralNetwork:
     def compute_accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
     
+    """
     def evaluate(self, X, y):
         _, output = self.forward_propagation(X)
         loss = self.calculate_loss(y, output)
