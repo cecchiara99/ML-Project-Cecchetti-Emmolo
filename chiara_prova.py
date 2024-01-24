@@ -27,9 +27,9 @@ class NeuralNetwork:
 
     def initialize_parameters(self):
         np.random.seed(42)
-        weights_input_hidden = np.random.uniform(low=-0.3, high=0.3, size=(self.input_size, self.hidden_size))
+        weights_input_hidden = np.random.uniform(low=-0.4, high=0.3, size=(self.input_size, self.hidden_size))
         biases_hidden = np.ones((1, self.hidden_size))
-        weights_hidden_output = np.random.uniform(low=-0.3, high=0.3, size=(self.hidden_size, self.output_size))
+        weights_hidden_output = np.random.uniform(low=-0.4, high=0.3, size=(self.hidden_size, self.output_size))
         biases_output = np.ones((1, self.output_size))
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
 
@@ -103,14 +103,15 @@ class NeuralNetwork:
         losses = []
 
         for epoch in range(self.epochs):
+            
             indices = np.random.permutation(m)
             X_shuffled = X[indices]
             y_shuffled = y[indices]
-
+            
             for i in range(0, m, self.batch_size):
                 X_batch = X_shuffled[i:i + self.batch_size]
                 y_batch = y_shuffled[i:i + self.batch_size]
-
+                
                 hidden_layer_output, output = self.forward_propagation(X_batch)
                 loss = self.calculate_loss(y_batch, output)
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
@@ -180,7 +181,7 @@ class NeuralNetwork:
         plt.close()
         return val_losses[-1], accuracies[-1]
         
-    
+    """
     def predict(self, X):
         _, output = self.forward_propagation(X)
         return np.round(output)
@@ -188,7 +189,7 @@ class NeuralNetwork:
     def compute_accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
     
-    """
+    
     def evaluate(self, X, y):
         _, output = self.forward_propagation(X)
         loss = self.calculate_loss(y, output)
