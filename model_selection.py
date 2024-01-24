@@ -2,7 +2,7 @@ import numpy as np
 import copy as cp
 from chiara_prova import NeuralNetwork
 
-def k_fold_cross_validation(input_size, hidden_size, data_X, data_y, hyperparams, K):
+def k_fold_cross_validation(input_size, hidden_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K):
     network = None
     best_theta = None
     best_model = None
@@ -18,7 +18,7 @@ def k_fold_cross_validation(input_size, hidden_size, data_X, data_y, hyperparams
             training_X, training_y, validation_X, validation_y = split_data_into_folds(data_X, data_y, K, k)
 
             # Train the model on the training set
-            network = NeuralNetwork(input_size, hidden_size, **theta) # TODO: aggiungi iperparametri
+            network = NeuralNetwork(input_size, hidden_size, output_size, activation_hidden, activation_output, **theta)
             network.train(training_X, training_y)
 
             # Evaluate the model on the validation set
@@ -77,7 +77,7 @@ def split_data_into_folds(data_X, data_y, K, k):
     return training_X, training_y, validation_X, validation_y
 
 
-def model_selection(input_size, hidden_size, data_X, data_y, hyperparameters, K):
+def model_selection(input_size, hidden_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K):
     """
     Select the final model using K-fold cross validation
 
@@ -90,7 +90,7 @@ def model_selection(input_size, hidden_size, data_X, data_y, hyperparameters, K)
     """
 
     # Select the best hyperparameters and best model using K-fold cross validation
-    best_theta, best_model = k_fold_cross_validation(input_size, hidden_size, data_X, data_y, hyperparameters, K)
+    best_theta, best_model = k_fold_cross_validation(input_size, hidden_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
 
     # Train the model on the whole training set using the best hyperparameters
     best_model.train(data_X, data_y)
@@ -106,18 +106,3 @@ def model_selection(input_size, hidden_size, data_X, data_y, hyperparameters, K)
 def model_assessment(final_model, test_data):
     # Return the test error
     pass
-
-
-"""
-hyperparams = ...
-data = ...
-K = ...
-test_data = ...
-
-# Train the model on the training set and select the best model
-best_model = model_selection(data, hyperparams, K)
-
-# Assess the performance of the best model on the test set
-test_error = model_assessment(best_model, test_data)
-print(f"Final Test Error: {test_error}")
-"""

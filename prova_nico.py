@@ -43,13 +43,16 @@ print("Targets-shape: ", data_y.shape)
 
 input_size = data_X.shape[1]
 hidden_size = 3
+output_size = 1
+activation_hidden = "sigmoid"
+activation_output = "tanh"
 
 hyperparams = [
     {'learning_rate': 0.9, 'epochs': 1000, 'batch_size': data_X.shape[0], 'momentum': 0.9, 'lambda_reg': 0.000000001}
 ]
 
 # Train the model on the training set and select the best model
-best_model = model_selection(input_size, hidden_size, data_X, data_y, hyperparams, K=5)
+best_model = model_selection(input_size, hidden_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K=5)
 
 # Assess the performance of the best model on the test set
 #test_error = model_assessment(best_model, test_data)

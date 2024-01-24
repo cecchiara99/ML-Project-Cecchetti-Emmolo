@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class NeuralNetwork:
-    def __init__(self, input_size, hidden_size, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.9, lambda_reg=0.01):
+    def __init__(self, input_size, hidden_size, output_size, activation_hidden, activation_output, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.9, lambda_reg=0.01):
         self.input_size = input_size
         self.hidden_size = hidden_size
+        self.output_size = output_size
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.batch_size = batch_size
@@ -17,12 +18,19 @@ class NeuralNetwork:
 
         self.weights_input_hidden, self.biases_hidden, self.weights_hidden_output, self.biases_output = self.initialize_parameters()
 
+        # TODO: decidere come gestire questa scelta delle attivazioni
+        self.activation_hidden = self.relu if activation_hidden == "relu" else self.sigmoid
+        self.activation_output = self.tanh if activation_output == "leaky_relu" else self.tanh
+        self.activation_hidden_derivative = self.relu_derivative if activation_hidden == "relu" else self.sigmoid_derivative
+        self.activation_output_derivative = self.tanh_derivative if activation_output == "leaky_relu" else self.tanh_derivative
+
+
     def initialize_parameters(self):
         np.random.seed(42)
-        weights_input_hidden = np.random.uniform(low=-0.3, high=0.3, size=(self.input_size,self.hidden_size))
+        weights_input_hidden = np.random.uniform(low=-0.3, high=0.3, size=(self.input_size, self.hidden_size))
         biases_hidden = np.ones((1, self.hidden_size))
-        weights_hidden_output = np.random.uniform(low=-0.3, high=0.3, size=(self.hidden_size, 1))
-        biases_output = np.ones((1, 1))
+        weights_hidden_output = np.random.uniform(low=-0.3, high=0.3, size=(self.hidden_size, self.output_size))
+        biases_output = np.ones((1, self.output_size))
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
 
     def tanh(self, x):
@@ -36,13 +44,25 @@ class NeuralNetwork:
     
     def sigmoid_derivative(self, x):
         return x * (1 - x)
+    
+    def relu(self, x):
+        return np.maximum(0, x)
+
+    def relu_derivative(self, x):
+        return np.where(x > 0, 1.0, 0.0)
+    
+    def leaky_relu(self, x):
+        return np.where(x >= 0, x, x * 0.01)
+    
+    def leaky_relu_derivative(self, x):
+        return np.where(x > 0, 1.0, 0.01)
 
     def forward_propagation(self, X):
         hidden_layer_input = np.dot(X, self.weights_input_hidden) + self.biases_hidden
-        hidden_layer_output = self.sigmoid(hidden_layer_input)
+        hidden_layer_output = self.activation_hidden(hidden_layer_input)
 
         output_layer_input = np.dot(hidden_layer_output, self.weights_hidden_output) + self.biases_output
-        output = self.tanh(output_layer_input)
+        output = self.activation_output(output_layer_input)
 
         return hidden_layer_output, output
 
@@ -58,9 +78,9 @@ class NeuralNetwork:
         m = len(y)
         error_output = output - y
 
-        output_delta = error_output * self.tanh_derivative(output)
+        output_delta = error_output * self.activation_output_derivative(output)
         hidden_layer_error = output_delta.dot(self.weights_hidden_output.T)
-        hidden_layer_delta = hidden_layer_error * self.sigmoid_derivative(hidden_layer_output)
+        hidden_layer_delta = hidden_layer_error * self.activation_hidden_derivative(hidden_layer_output)
 
         weights_hidden_output_gradient = hidden_layer_output.T.dot(output_delta) / m
         biases_output_gradient = np.sum(output_delta, axis=0, keepdims=True) / m
@@ -174,7 +194,7 @@ class NeuralNetwork:
         loss = self.calculate_loss(y, output)
         return loss
 
-
+"""
 percorso_file_train_1 = './monk+s+problems/monks-1.train'
 percorso_file_train_2 = './monk+s+problems/monks-2.train'
 percorso_file_train_3 = './monk+s+problems/monks-3.train'
@@ -194,3 +214,4 @@ nn.train(X_train, y_train)
 # Cross-validate
 #validation_loss, accuracy = nn.cross_validate(X_train, y_train)
 #print(f"Final Validation Loss: {validation_loss}, Final Accuracy: {accuracy}")
+"""
