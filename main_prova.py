@@ -5,21 +5,28 @@ from model_selection import *
 path_file_train_1 = './monk+s+problems/monks-1.train'
 path_file_train_2 = './monk+s+problems/monks-2.train'
 path_file_train_3 = './monk+s+problems/monks-3.train'
+path_file_test_1 = './monk+s+problems/monks-1.test'
+path_file_test_2 = './monk+s+problems/monks-2.test'
+path_file_test_3 = './monk+s+problems/monks-3.test'
 
 path_file_train_cup = './cup+problem/ML-CUP23-TR.csv'
+path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
-task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
+task = "monk2" # "monk1" or "monk2" or "monk3" or "cup"
 data_X = None
 data_y = None
 
 if task == "monk1":
     data_X, data_y = read_monk(path_file_train_1)
+    test_X, test_y = read_monk(path_file_test_1)
 elif task == "monk2":
     data_X, data_y = read_monk(path_file_train_2)
+    test_X, test_y = read_monk(path_file_test_2)
 elif task == "monk3":
     data_X, data_y = read_monk(path_file_train_3)
+    test_X, test_y = read_monk(path_file_test_3)
 elif task == "cup":
-    data_X, data_y = read_cup(path_file_train_cup)
+    data_X, data_y, data_test = read_cup(path_file_train_cup, path_file_test_cup)
 else:
     print("Error: task not recognized")
 
@@ -37,8 +44,4 @@ activation_output = "tanh"
 best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K=5)
 
 # DA SPOSTARE
-"""
-def model_assessment(final_model, test_data):
-    # Return the test error
-    pass
-"""
+model_assessment(best_model, test_X, test_y)

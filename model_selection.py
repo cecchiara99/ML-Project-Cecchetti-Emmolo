@@ -7,16 +7,31 @@ from sklearn.model_selection import train_test_split
 
 def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K):
     
+    """hyperparameters_ranges =  {
+         # Specify range (lower_limit, upper_limit, step)
+        'hidden_size': (2, 5, 1),     
+        'learning_rate': (0.1, 0.9, 0.01),
+        'epochs': (200, 1000, 200),
+        'batch_size': (128, 128, 64),
+        'momentum': (0.5, 0.9, 0.01),
+        'lambda_reg': (0.001, 0.1, 0.001),
+        'w_init_limit': (0.1, 0.3, 0.1)
+    }"""
+
     hyperparameters_ranges =  {
-        'hidden_size': (2, 4, 2),      # Specify range (lower_limit, upper_limit, step)
-        'learning_rate': (0.1, 0.9, 0.8),  # Specify range (lower_limit, upper_limit, step)
-        'epochs': (200, 1000, 800),        # Specify range (lower_limit, upper_limit, step)
-        'batch_size': (128, 128, 64),      # Specify range (lower_limit, upper_limit, step)
-        'momentum': (0.5, 0.9, 0.4),        # Specify range (lower_limit, upper_limit, step)
-        'lambda_reg': (0.001, 0.1, 0.001),  # Specify range (lower_limit, upper_limit, step)
+        # Specify range (lower_limit, upper_limit, step)
+        'hidden_size': (3, 3, 1),           
+        'learning_rate': (0.1, 0.9, 0.2),
+        'epochs': (1000, 1000, 800),
+        'batch_size': (64, 64, 64),
+        'momentum': (0.5, 0.9, 0.2),
+        'lambda_reg': (0.01, 0.1, 0.01),
+        'w_init_limit': (0.1, 0.1, 0.1)
     }
 
     hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+
+    #hyperparameters = [ { 'hidden_size': 3, 'learning_rate': 0.8, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.8, 'lambda_reg': 0.001, 'w_init_limit': 0.01 }]
 
     # Select the best hyperparameters and best model using K-fold cross validation
     best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
@@ -37,8 +52,6 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     accuracy = best_model.compute_accuracy(data_y, val_predictions)
     print(" Accuracy: ", accuracy)
 
-    
-
     # Copy the best model
     final_model = cp.deepcopy(best_model)
 
@@ -47,19 +60,44 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
 
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K):
+    """
+    Perform K-fold cross validation to select the best hyperparameters and the best model
+
+    :param input_size: the size of the input layer
+    :param output_size: the size of the output layer
+    :param activation_hidden: the activation function of the hidden layer
+    :param activation_output: the activation function of the output layer
+    :param data_X: the input data
+    :param data_y: the target data
+    :param hyperparams: a list of dictionaries containing the hyperparameters values to try
+    :param K: number of folds
+
+    :return: the best hyperparameters and the best model
+    """
+
+
+
     network = None
     best_theta = None
     best_model = None
     best_validation_error = float('inf')
 
+    m = len(data_y)
+
     # Cycle for grid search
     for theta in hyperparams:
         tot_validation_error = 0.0
         #print(f"\nCurrent hyperparameters: {theta}\n")
+
+        indices = np.random.permutation(m)
+        X_shuffled = data_X[indices]
+        y_shuffled = data_y[indices]
+
         # Cycle for K-fold cross validation
         for k in range(K):
             # Split the data into training and validation sets
-            training_X, training_y, validation_X, validation_y = split_data_into_folds(data_X, data_y, K, k)
+            training_X, training_y, validation_X, validation_y = split_data_into_folds(X_shuffled, y_shuffled, K, k)
+            #training_X, training_y, validation_X, validation_y = split_data_into_folds(data_X, data_y, K, k)
             
             # Train the model on the training set
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
@@ -77,7 +115,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
         # Update best hyperparameter and best model if the current ones are better
         if avg_validation_error < best_validation_error:
             best_validation_error = avg_validation_error
-            best_theta = cp.deepcopy(theta)
+            best_theta = theta
             best_model = cp.deepcopy(network)
             print(f"\nBest validation error: {best_validation_error}\n")
 
@@ -146,3 +184,12 @@ def generate_combinations_from_ranges(hyperparameters_ranges):
         #print(dictionary_combination)
 
     return result_combinations
+
+
+
+# DA SPOSTARE
+def model_assessment(final_model, test_X, test_y):
+    # Compute accuracy on test set
+    test_predictions = final_model.predict(test_X)
+    accuracy = final_model.compute_accuracy(test_y, test_predictions)
+    print(" Accuracy TEST: ", accuracy)

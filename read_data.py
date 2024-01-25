@@ -29,14 +29,23 @@ def read_monk(path):
     return monk_dataset_array, targets_array
 
 
-def read_cup(path):
+def read_cup(path_tr, path_ts):
     # Read the training dataset
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'target_x', 'target_y', 'target_z']
-    cup_dataset = pd.read_csv(path, sep=',', names=col_names, skiprows=range(7), usecols=range(0, 11))
-    cup_dataset.set_index('Id', inplace=True) 
-    targets = pd.read_csv(path, sep=',', names=col_names, skiprows=range(7), usecols=range(11, 14))
+    train_dataset = pd.read_csv(path_tr, sep=',', names=col_names, skiprows=range(7), usecols=range(0, 11))
+    train_dataset.set_index('Id', inplace=True) 
+    targets = pd.read_csv(path_tr, sep=',', names=col_names, skiprows=range(7), usecols=range(11, 14))
 
-    return cup_dataset, targets
+    # Read the test dataset (blind)
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10']
+    test_dataset = pd.read_csv(path_ts, sep=',', names=col_names, skiprows=range(7), usecols=range(0, 11))
+    test_dataset.set_index('Id', inplace=True)
+
+    train_dataset_array = train_dataset.to_numpy(dtype=np.float32)
+    targets_array = targets.to_numpy(dtype=np.float32)
+    test_dataset_array = test_dataset.to_numpy(dtype=np.float32)
+
+    return train_dataset_array, targets_array, test_dataset_array
 
 
 
