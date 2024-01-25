@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 
+
 def mean_squared_error(y_true, y_pred):
     """
     Calcola il Mean Squared Error tra i valori veri e le previsioni.
