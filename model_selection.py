@@ -29,9 +29,9 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         'w_init_limit': (0.1, 0.1, 0.1)
     }
 
-    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
-    #hyperparameters = [ { 'hidden_size': 3, 'learning_rate': 0.8, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.8, 'lambda_reg': 0.001, 'w_init_limit': 0.01 }]
+    hyperparameters = [ { 'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': 0.1 }]
 
     # Select the best hyperparameters and best model using K-fold cross validation
     best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)

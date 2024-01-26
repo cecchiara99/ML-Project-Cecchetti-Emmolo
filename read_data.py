@@ -36,16 +36,24 @@ def read_cup(path_tr, path_ts):
     train_dataset.set_index('Id', inplace=True) 
     targets = pd.read_csv(path_tr, sep=',', names=col_names, skiprows=range(7), usecols=range(11, 14))
 
-    # Read the test dataset (blind)
-    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10']
-    test_dataset = pd.read_csv(path_ts, sep=',', names=col_names, skiprows=range(7), usecols=range(0, 11))
-    test_dataset.set_index('Id', inplace=True)
-
     train_dataset_array = train_dataset.to_numpy(dtype=np.float32)
     targets_array = targets.to_numpy(dtype=np.float32)
-    test_dataset_array = test_dataset.to_numpy(dtype=np.float32)
 
-    return train_dataset_array, targets_array, test_dataset_array
+    # Take the first 80% of the training dataset as training set and the remaining 20% as internal test set
+    n = int(0.8 * len(train_dataset_array))
+    train_dataset_array = train_dataset_array[:n]
+    targets_array = targets_array[:n]
+    internal_test_dataset_array = train_dataset_array[n:]
+    internal_test_targets_array = targets_array[n:]
+
+    # Read the test dataset (blind)
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10']
+    blind_test_dataset = pd.read_csv(path_ts, sep=',', names=col_names, skiprows=range(7), usecols=range(0, 11))
+    blind_test_dataset.set_index('Id', inplace=True)
+
+    blind_test_dataset_array = blind_test_dataset.to_numpy(dtype=np.float32)
+
+    return train_dataset_array, targets_array, internal_test_dataset_array, internal_test_targets_array, blind_test_dataset_array
 
 
 
