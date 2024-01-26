@@ -31,11 +31,14 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
     #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
-    hyperparameters = [ { 'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': 0.1 }]
+    hyperparameters = [ { 'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 128, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': 0.1 }]
 
     # Select the best hyperparameters and best model using K-fold cross validation
-    best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
-
+    #best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
+    
+    best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters)
+    
+    
     print(f"Best hyperparameters: {best_theta}")
     #X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.2, random_state=42)
     #print(f"Best validation error (Pre-Training): {best_model.evaluate(X_val, y_val)}")
@@ -57,7 +60,47 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
     return final_model
 
+def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter):
+        
+        train_losses, val_losses, accuracies = [], [], []
 
+        network = None
+        best_theta = float('inf')
+        best_model = None
+        
+
+        
+        for theta in hyperparameter:
+            X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.1, random_state=42)
+            indices = np.random.permutation(len(y_train))
+            X_shuffled = X_train[indices]
+            y_shuffled = y_train[indices]
+
+            network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
+            network.train(X_shuffled, y_shuffled)
+                
+            
+
+            # Evaluate on validation set
+            val_loss = network.evaluate(X_val, y_val, "monk1")
+            val_losses.append(val_loss)
+
+            # Compute accuracy on validation set
+            val_predictions = network.predict(X_val)
+            accuracy = network.compute_accuracy(y_val, val_predictions)
+            accuracies.append(accuracy)
+
+            
+            print(f"Validation Loss: {val_loss}, Accuracy: {accuracy}")
+
+            # Update best hyperparameter and best model if the current ones are better
+            if val_loss < best_theta:
+                best_theta = theta
+                best_model = cp.deepcopy(network)
+                print(f"\nBest validation error: {best_theta}\n")
+
+        return best_theta, best_model
+        
 
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K):
     """
@@ -104,7 +147,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             network.train(training_X, training_y)
 
             # Evaluate the model on the validation set
-            validation_error = network.evaluate(validation_X, validation_y)
+            validation_error = network.evaluate(validation_X, validation_y, "monk1")
             
             tot_validation_error += validation_error
 

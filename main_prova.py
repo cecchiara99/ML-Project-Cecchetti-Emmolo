@@ -37,8 +37,8 @@ print("Targets-shape: ", data_y.shape)
 
 input_size = data_X.shape[1]
 output_size = data_y.shape[1]
-activation_hidden = "relu"
-activation_output = "identity"
+activation_hidden = "sigmoid"
+activation_output = "tanh"
 
 
 # Train the model on the training set and select the best model
