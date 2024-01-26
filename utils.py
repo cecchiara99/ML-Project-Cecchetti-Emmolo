@@ -29,8 +29,10 @@ def mean_euclidean_error(y_true, y_pred):
     """
     
     error = y_true - y_pred
-    mee = np.mean(np.linalg.norm(error, axis=1))
-    #mee = np.mean(np.sqrt((targets - predictions)**2))
+
+    mee = np.mean(np.sum(np.sqrt((y_true - y_pred)**2)))
+
+    #mee = np.mean(np.linalg.norm(error, axis=1))
     #mee = np.sqrt(np.mean((targets - predictions)**2))
     #mee = np.mean(np.sqrt(np.sum((targets - predictions)**2, axis=1)))
     #mee = np.linalg.norm(np.subtract(predicted, target))
