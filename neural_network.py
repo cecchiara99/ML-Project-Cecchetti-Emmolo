@@ -39,15 +39,13 @@ class NeuralNetwork:
         self.activation_hidden_derivative = act_funcs_derivatives[activation_hidden] if (activation_hidden in act_funcs_derivatives) else sigmoid_derivative
         self.activation_output_derivative = act_funcs_derivatives[activation_output] if (activation_output in act_funcs_derivatives) else sigmoid_derivative
 
-
     def initialize_parameters(self):
         np.random.seed(42)
-        weights_input_hidden = np.random.uniform(low=-self.w_init_limit, high=self.w_init_limit, size=(self.input_size, self.hidden_size))
+        weights_input_hidden = np.random.uniform(low=-self.w_init_limit[0], high=self.w_init_limit[1], size=(self.input_size, self.hidden_size))
         biases_hidden = np.ones((1, self.hidden_size))
-        weights_hidden_output = np.random.uniform(low=-self.w_init_limit, high=self.w_init_limit, size=(self.hidden_size, self.output_size))
+        weights_hidden_output = np.random.uniform(low=-self.w_init_limit[0], high=self.w_init_limit[1], size=(self.hidden_size, self.output_size))
         biases_output = np.ones((1, self.output_size))
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
-
 
     def forward_propagation(self, X):
         hidden_layer_input = np.dot(X, self.weights_input_hidden) + self.biases_hidden
@@ -58,7 +56,6 @@ class NeuralNetwork:
 
         return hidden_layer_output, output
 
-
     def calculate_loss(self, y, y_pred):
         m = len(y)
         loss = np.mean((y_pred - y) ** 2)
@@ -66,7 +63,6 @@ class NeuralNetwork:
             np.sum(self.weights_input_hidden ** 2) + np.sum(self.weights_hidden_output ** 2)
         )
         return loss + regularization_term
-
 
     def backward_propagation(self, X, y, hidden_layer_output, output):
         m = len(y)
@@ -90,7 +86,6 @@ class NeuralNetwork:
         self.biases_output -= self.momentum * self.learning_rate * biases_output_gradient
         self.weights_input_hidden -= self.momentum * self.learning_rate * weights_input_hidden_gradient
         self.biases_hidden -= self.momentum * self.learning_rate * biases_hidden_gradient
-
 
     def train(self, X, y):
         m = len(y)
@@ -127,15 +122,12 @@ class NeuralNetwork:
         plt.savefig('learning_curve.png')  
         plt.close()
     
-    
     def predict(self, X):
         _, output = self.forward_propagation(X)
         return np.round(output)
 
-
     def compute_accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
-    
     
     def evaluate(self, X, y, task):
         _, output = self.forward_propagation(X)
@@ -147,4 +139,4 @@ class NeuralNetwork:
             print("Error: task not recognized")
             loss = None
         return loss
-    
+   

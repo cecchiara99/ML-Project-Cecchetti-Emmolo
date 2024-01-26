@@ -6,49 +6,37 @@ from itertools import product
 from sklearn.model_selection import train_test_split
 
 def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K):
-    
-    """hyperparameters_ranges =  {
-         # Specify range (lower_limit, upper_limit, step)
-        'hidden_size': (2, 5, 1),     
-        'learning_rate': (0.1, 0.9, 0.01),
-        'epochs': (200, 1000, 200),
-        'batch_size': (128, 128, 64),
-        'momentum': (0.5, 0.9, 0.01),
-        'lambda_reg': (0.001, 0.1, 0.001),
-        'w_init_limit': (0.1, 0.3, 0.1)
-    }"""
 
     hyperparameters_ranges =  {
         # Specify range (lower_limit, upper_limit, step)
-        'hidden_size': (3, 3, 1),           
-        'learning_rate': (0.1, 0.9, 0.2),
-        'epochs': (1000, 1000, 800),
-        'batch_size': (64, 64, 64),
-        'momentum': (0.5, 0.9, 0.2),
-        'lambda_reg': (0.01, 0.1, 0.01),
-        'w_init_limit': (0.1, 0.1, 0.1)
+        'hidden_size': (3, 5, 1),           
+        'learning_rate': (0.5, 0.9, 0.2),
+        'epochs': (400, 1000, 100),
+        'batch_size': (64, 128, 64),
+        'momentum': (0.7, 0.9, 0.01),
+        'lambda_reg': (0.001, 0.01, 0.01),
+        'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
     }
 
-    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
-
-    hyperparameters = [ { 'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 128, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': 0.1 }]
+    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
     # Select the best hyperparameters and best model using K-fold cross validation
+    #print("K-fold cross validation\n")
     #best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
     
+    print("Hold out\n")
     best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters)
     
-    
     print(f"Best hyperparameters: {best_theta}")
-    #X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.2, random_state=42)
-    #print(f"Best validation error (Pre-Training): {best_model.evaluate(X_val, y_val)}")
+    
+    X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.2, random_state=42)
+    print(f"Best validation error (Pre-Training): {best_model.evaluate(X_val, y_val)}")
 
     # Train the model on the whole training set using the best hyperparameters
     best_model.train(data_X, data_y)
     
-    #X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.2, random_state=42)
     # Evaluate on validation set
-    #print(f"Best validation error (Post-Training): {best_model.evaluate(X_val, y_val)}")
+    print(f"Best validation error (Post-Training): {best_model.evaluate(X_val, y_val)}")
     
     # Compute accuracy on validation set
     val_predictions = best_model.predict(data_X)
@@ -67,8 +55,6 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
         network = None
         best_theta = float('inf')
         best_model = None
-        
-
         
         for theta in hyperparameter:
             X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.1, random_state=42)
@@ -91,17 +77,16 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
             accuracies.append(accuracy)
 
             
-            print(f"Validation Loss: {val_loss}, Accuracy: {accuracy}")
+            print(f"Validation Loss: {val_loss}, Accuracy: {accuracy}, Hyperparameters: {theta}")
 
             # Update best hyperparameter and best model if the current ones are better
-            if val_loss < best_theta:
+            if val_loss < val_losses[-1]:
                 best_theta = theta
                 best_model = cp.deepcopy(network)
                 print(f"\nBest validation error: {best_theta}\n")
 
         return best_theta, best_model
         
-
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K):
     """
     Perform K-fold cross validation to select the best hyperparameters and the best model
@@ -117,8 +102,6 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
 
     :return: the best hyperparameters and the best model
     """
-
-
 
     network = None
     best_theta = None
@@ -164,7 +147,6 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
 
     return best_theta, best_model
 
-
 def split_data_into_folds(data_X, data_y, K, k):
     """
     Split the data into K folds and return the k-th fold as validation set and the rest as training set
@@ -195,21 +177,31 @@ def split_data_into_folds(data_X, data_y, K, k):
 
     return training_X, training_y, validation_X, validation_y
 
-
-
 def generate_combinations_from_ranges(hyperparameters_ranges):
+    
     """
     Generate all the possible combinations of hyperparameters values from the specified ranges
 
-    :param hyperparameters_ranges: a dictionary containing the ranges of the hyperparameters
+    :param hyperparameters_ranges: a dictionary containing the ranges or list of pairs of the hyperparameters
 
     :return: a list of dictionaries containing all the possible combinations of hyperparameters values
     """
 
     hyperparameters = []
     
-    for key, (lower_limit, upper_limit, step) in hyperparameters_ranges.items():
-        values = np.arange(lower_limit, upper_limit + 0.0001, step)  # Adding a small value to include upper_limit
+    for key, value in hyperparameters_ranges.items():
+        if key == 'w_init_limit' and isinstance(value, list):
+            # Flatten the list of pairs
+            values = [item for sublist in value for item in sublist]
+        else:
+            # Use the specified range
+            lower_limit, upper_limit, step = value
+            values = np.arange(lower_limit, upper_limit + 0.0001, step)
+
+        if key == 'w_init_limit':
+            # Create sliding window pairs
+            values = [[values[i], values[i+1]] for i in range(0, len(values), 2)]
+
         hyperparameters.append({key: values})
 
     all_combinations = []
@@ -221,16 +213,19 @@ def generate_combinations_from_ranges(hyperparameters_ranges):
     values_combinations = list(product(*[params[1] for params in all_combinations]))
 
     result_combinations = []
+    
     for combination in values_combinations:
-        dictionary_combination = {param[0]: round(combination[i], 3) if param[0] == 'lambda_reg' else round(combination[i], 2) for i, param in enumerate(all_combinations)}
+        dictionary_combination = {
+            param[0]: round(combination[i], 3) if param[0] == 'lambda_reg' else round(combination[i], 2)
+            for i, param in enumerate(all_combinations) if param[0] != 'w_init_limit'
+        }
+        # Add the 'w_init_limit' key without rounding
+        w_init_limit_index = [i for i, param in enumerate(all_combinations) if param[0] == 'w_init_limit'][0]
+        dictionary_combination['w_init_limit'] = combination[w_init_limit_index]
         result_combinations.append(dictionary_combination)
-        #print(dictionary_combination)
 
     return result_combinations
 
-
-
-# DA SPOSTARE
 def model_assessment(final_model, test_X, test_y):
     # Compute accuracy on test set
     test_predictions = final_model.predict(test_X)
