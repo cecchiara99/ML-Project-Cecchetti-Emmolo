@@ -43,7 +43,7 @@ K = 5
 
 
 # Train the model on the training set and select the best model
-best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task)
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task, test_X, test_y)
 
 model_assessment(best_model, test_X, test_y)
 

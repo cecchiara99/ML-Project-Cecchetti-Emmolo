@@ -87,18 +87,14 @@ class NeuralNetwork:
         self.weights_input_hidden -= self.momentum * self.learning_rate * np.clip(weights_input_hidden_gradient, -1e10, 1e10)
         self.biases_hidden -= self.momentum * self.learning_rate * np.clip(biases_hidden_gradient, -1e10, 1e10)
 
-    def train(self, X, y):
+    def train(self, X, y, X_test, y_test):
         m = len(y)
         losses = []
-        loss = 0.0
+        test_losses = []
+        accuracies = []
+        accuracies_test = []
 
         for epoch in range(self.epochs):
-            
-            """
-            indices = np.random.permutation(m)
-            X_shuffled = X[indices]
-            y_shuffled = y[indices]
-            """
             
             for i in range(0, m, self.batch_size):
                 X_batch = X[i:i + self.batch_size]
@@ -109,19 +105,33 @@ class NeuralNetwork:
                 hidden_layer_output, output = self.forward_propagation(X_batch)
                 loss = self.calculate_loss(y_batch, output)
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
+            
+            accuracies.append(self.compute_accuracy(y, self.predict(X)))
             losses.append(loss)
+            test_predictions = self.predict(X_test)
+            test_losses.append(self.calculate_loss(y_test, test_predictions))
+            accuracy_test = self.compute_accuracy(y_test, test_predictions)
+            accuracies_test.append(accuracy_test)
 
-            #if epoch % 100 == 0:
-            #    print(f"Epoch {epoch}, Loss: {loss}")
+
         
-        plt.plot(range(0, self.epochs), losses, label='Training Loss')
+        plt.plot(range(0, self.epochs), losses, label='Training Loss', color='blue')
+        plt.plot(range(0, self.epochs), test_losses, label='Test Loss', color='red')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.title('Learning Curve')
         plt.legend()
         plt.savefig('learning_curve.png')  
         plt.close()
-    
+        plt.plot(range(0, self.epochs), accuracies, label='Accuracy_Training', color='blue')
+        plt.plot(range(0, self.epochs), accuracies_test, label='Test Accuracy', color='red')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title('Accuracy Curve')
+        plt.legend()
+        plt.savefig('accuracy_curve.png')  
+        plt.close()
+  
     def predict(self, X):
         _, output = self.forward_propagation(X)
         return np.round(output)
@@ -139,4 +149,3 @@ class NeuralNetwork:
             print("Error: task not recognized")
             loss = None
         return loss
-   
