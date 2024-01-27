@@ -4,7 +4,7 @@ from functions import *
 from utils import *
 
 class NeuralNetwork:
-    def __init__(self, input_size, output_size, activation_hidden, activation_output, hidden_size=2, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.9, lambda_reg=0.01, w_init_limit=0.1):
+    def __init__(self, input_size, output_size, activation_hidden, activation_output, hidden_size=2, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.9, lambda_reg=0.01, w_init_limit=[-0.1, 0.1]):
         self.input_size = int(input_size)
         self.hidden_size = int(hidden_size)
         self.output_size = int(output_size)
@@ -41,9 +41,9 @@ class NeuralNetwork:
 
     def initialize_parameters(self):
         np.random.seed(42)
-        weights_input_hidden = np.random.uniform(low=-self.w_init_limit[0], high=self.w_init_limit[1], size=(self.input_size, self.hidden_size))
+        weights_input_hidden = np.random.uniform(low=self.w_init_limit[0], high=self.w_init_limit[1], size=(self.input_size, self.hidden_size))
         biases_hidden = np.ones((1, self.hidden_size))
-        weights_hidden_output = np.random.uniform(low=-self.w_init_limit[0], high=self.w_init_limit[1], size=(self.hidden_size, self.output_size))
+        weights_hidden_output = np.random.uniform(low=self.w_init_limit[0], high=self.w_init_limit[1], size=(self.hidden_size, self.output_size))
         biases_output = np.ones((1, self.output_size))
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
 

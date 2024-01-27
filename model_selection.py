@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from itertools import product
 from sklearn.model_selection import train_test_split
 
-def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K):
+def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task):
 
     hyperparameters_ranges =  {
         # Specify range (lower_limit, upper_limit, step)
@@ -20,15 +20,15 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
     #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
-    hyperparameters = [{'hidden_size': 4, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 128, 'momentum': 0.9, 'lambda_reg': 0.0001, 'w_init_limit': [-0.3, 0.3]}]
+    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.1, 0.1]}]
 
     print(f"Number of hyperparameters combinations: {len(hyperparameters)}")
     # Select the best hyperparameters and best model using K-fold cross validation
     print("K-fold cross validation\n")
-    best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
+    best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task)
     
     #print("Hold out\n")
-    #best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters)
+    #best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task)
     
     
     print(f"Best hyperparameters: {best_theta}")
@@ -47,7 +47,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
     return final_model
 
-def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter):
+def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter, task):
         
         val_losses, accuracies = [], []
 
@@ -65,7 +65,7 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
             network.train(X_shuffled, y_shuffled)
 
             # Evaluate on validation set
-            val_loss = network.evaluate(X_val, y_val, "monk1")
+            val_loss = network.evaluate(X_val, y_val, task)
             val_losses.append(val_loss)
 
             # Compute accuracy on validation set
@@ -89,7 +89,7 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
                 print(f"\nBest validation error: {val_loss}\n")
         return best_theta, best_model
         
-def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K):
+def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K, task):
     """
     Perform K-fold cross validation to select the best hyperparameters and the best model
 
@@ -125,14 +125,13 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
         for k in range(K):
             # Split the data into training and validation sets
             training_X, training_y, validation_X, validation_y = split_data_into_folds(X_shuffled, y_shuffled, K, k)
-            #training_X, training_y, validation_X, validation_y = split_data_into_folds(data_X, data_y, K, k)
             
             # Train the model on the training set
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
             network.train(training_X, training_y)
 
             # Evaluate the model on the validation set
-            validation_error = network.evaluate(validation_X, validation_y, "monk1")
+            validation_error = network.evaluate(validation_X, validation_y, task)
             
             tot_validation_error += validation_error
 

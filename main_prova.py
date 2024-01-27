@@ -42,7 +42,7 @@ activation_output = "tanh"
 
 
 # Train the model on the training set and select the best model
-best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K=5)
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K=5, task=task)
 
 model_assessment(best_model, test_X, test_y)
 
