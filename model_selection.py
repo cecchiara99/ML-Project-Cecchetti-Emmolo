@@ -18,25 +18,24 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
     }
 
-    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
+    hyperparameters = [{'hidden_size': 4, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 128, 'momentum': 0.9, 'lambda_reg': 0.0001, 'w_init_limit': [-0.3, 0.3]}]
+
+    print(f"Number of hyperparameters combinations: {len(hyperparameters)}")
     # Select the best hyperparameters and best model using K-fold cross validation
-    #print("K-fold cross validation\n")
-    #best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
+    print("K-fold cross validation\n")
+    best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K)
     
-    print("Hold out\n")
-    best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters)
+    #print("Hold out\n")
+    #best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters)
+    
     
     print(f"Best hyperparameters: {best_theta}")
-    
-    X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.2, random_state=42)
-    print(f"Best validation error (Pre-Training): {best_model.evaluate(X_val, y_val)}")
+
 
     # Train the model on the whole training set using the best hyperparameters
     best_model.train(data_X, data_y)
-    
-    # Evaluate on validation set
-    print(f"Best validation error (Post-Training): {best_model.evaluate(X_val, y_val)}")
     
     # Compute accuracy on validation set
     val_predictions = best_model.predict(data_X)
@@ -50,10 +49,10 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
 def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter):
         
-        train_losses, val_losses, accuracies = [], [], []
+        val_losses, accuracies = [], []
 
         network = None
-        best_theta = float('inf')
+        best_theta = None
         best_model = None
         
         for theta in hyperparameter:
@@ -64,8 +63,6 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
 
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
             network.train(X_shuffled, y_shuffled)
-                
-            
 
             # Evaluate on validation set
             val_loss = network.evaluate(X_val, y_val, "monk1")
@@ -80,11 +77,16 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
             print(f"Validation Loss: {val_loss}, Accuracy: {accuracy}, Hyperparameters: {theta}")
 
             # Update best hyperparameter and best model if the current ones are better
-            if val_loss < val_losses[-1]:
-                best_theta = theta
+            if len(val_losses) > 1:
+                if val_loss < val_losses[-2]:
+                    best_theta = cp.deepcopy(theta)
+                    best_model = cp.deepcopy(network)
+                    print(f"\nBest validation error: {val_loss}\n")
+                    print(f"\nBest accuracy: {accuracy}\n")
+            else:
+                best_theta = cp.deepcopy(theta)
                 best_model = cp.deepcopy(network)
-                print(f"\nBest validation error: {best_theta}\n")
-
+                print(f"\nBest validation error: {val_loss}\n")
         return best_theta, best_model
         
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K):
@@ -141,7 +143,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
         # Update best hyperparameter and best model if the current ones are better
         if avg_validation_error < best_validation_error:
             best_validation_error = avg_validation_error
-            best_theta = theta
+            best_theta = cp.deepcopy(theta)
             best_model = cp.deepcopy(network)
             print(f"\nBest validation error: {best_validation_error}\n")
 
