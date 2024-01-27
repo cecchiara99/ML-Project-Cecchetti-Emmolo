@@ -59,10 +59,7 @@ class NeuralNetwork:
     def calculate_loss(self, y, y_pred):
         m = len(y)
         loss = np.mean((y_pred - y) ** 2)
-        regularization_term = (self.lambda_reg / (2 * m)) * (
-            np.sum(self.weights_input_hidden ** 2) + np.sum(self.weights_hidden_output ** 2)
-        )
-        return loss + regularization_term
+        return loss
 
     def backward_propagation(self, X, y, hidden_layer_output, output):
         m = len(y)
@@ -87,12 +84,13 @@ class NeuralNetwork:
         self.weights_input_hidden -= self.momentum * self.learning_rate * np.clip(weights_input_hidden_gradient, -1e10, 1e10)
         self.biases_hidden -= self.momentum * self.learning_rate * np.clip(biases_hidden_gradient, -1e10, 1e10)
 
-    def train(self, X, y, X_test, y_test):
+    def train(self, X, y, X_test, y_test,task):
         m = len(y)
         losses = []
         test_losses = []
         accuracies = []
         accuracies_test = []
+        losses_cup = []
 
         for epoch in range(self.epochs):
             
@@ -104,6 +102,9 @@ class NeuralNetwork:
                 
                 hidden_layer_output, output = self.forward_propagation(X_batch)
                 loss = self.calculate_loss(y_batch, output)
+                if task == "cup":
+                    loss_cup = mean_euclidean_error(y_batch, output)
+                    losses_cup.append(loss_cup)
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
             accuracies.append(self.compute_accuracy(y, self.predict(X)))
@@ -115,14 +116,27 @@ class NeuralNetwork:
 
 
         
-        plt.plot(range(0, self.epochs), losses, label='Training Loss', color='blue')
-        plt.plot(range(0, self.epochs), test_losses, label='Test Loss', color='red')
+        #loss curve
+        if task == "cup":
+            plt.plot(range(0, self.epochs), losses_cup, label='Training Loss', color='blue')
+            plt.plot(range(0, self.epochs), test_losses, label='Test Loss', color='red')
+        else:
+            plt.plot(range(0, self.epochs), losses, label='Training Loss', color='blue')
+            plt.plot(range(0, self.epochs), test_losses, label='Test Loss', color='red')
+        
         plt.xlabel('Epoch')
-        plt.ylabel('Loss')
+        
+        if task == "cup":
+            plt.ylabel('MEE')
+        else:
+            plt.ylabel('MSE')
+        
         plt.title('Learning Curve')
         plt.legend()
         plt.savefig('learning_curve.png')  
         plt.close()
+        
+        #accuracy curve
         plt.plot(range(0, self.epochs), accuracies, label='Accuracy_Training', color='blue')
         plt.plot(range(0, self.epochs), accuracies_test, label='Test Accuracy', color='red')
         plt.xlabel('Epoch')

@@ -19,27 +19,25 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
     }
 
-    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
 
-    print(f"\nNumber of combinations: {len(hyperparameters)}\n")
+    #print(f"\nNumber of combinations: {len(hyperparameters)}\n")
 
-    
-
-    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 400, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
+    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 400, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
 
 
-    #print("Hold out\n")
-    #best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task)
+    print("Hold out\n")
+    best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task)
 
     # Select the best hyperparameters and best model using K-fold cross validation
-    print("K-fold cross validation\n")
-    best_theta, best_model, best_hyperparams = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y)
+    #print("K-fold cross validation\n")
+    #best_theta, best_model, best_hyperparams = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y)
     
     print(f"Best hyperparameters: {best_theta}")
 
     # Train the model on the whole training set using the best hyperparameters
-    best_model.train(data_X, data_y, test_X, test_y)
+    best_model.train(data_X, data_y, test_X, test_y, task)
     
     # Compute accuracy on validation set
     val_predictions = best_model.predict(data_X)
@@ -60,7 +58,6 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
         best_model = None
         
         for theta in hyperparameter:
-            #X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.1, random_state=42)
             X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.9)
 
             indices = np.random.permutation(len(y_train))
@@ -68,7 +65,7 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
             y_shuffled = y_train[indices]
 
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
-            network.train(X_shuffled, y_shuffled)
+            network.train(X_shuffled, y_shuffled, X_val, y_val, task)
 
             # Evaluate on validation set
             val_loss = network.evaluate(X_val, y_val, task)
@@ -93,8 +90,6 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
                 best_theta = cp.deepcopy(theta)
                 best_model = cp.deepcopy(network)
                 print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
-            
-
         return best_theta, best_model
         
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K, task, test_X, test_y):
@@ -140,7 +135,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             
             # Train the model on the training set
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
-            network.train(training_X, training_y, test_X, test_y)
+            network.train(training_X, training_y, test_X, test_y, task)
             
             # Evaluate the model on the validation set
             validation_error = network.evaluate(validation_X, validation_y, task)
