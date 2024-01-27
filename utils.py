@@ -92,3 +92,23 @@ def create_cup_csv(outputs):
         df.to_csv(f, index=False, header=False, sep=',')
 
     print(f"File CSV '{output_file_path}' created")
+
+def split_data(data_X, data_y, percentage):
+    """
+    Split the data into different sets, basing on the percentage.
+
+    :param data: the dataset
+    :param percentage: the percentage of the split
+
+    :return: the splitted data
+    """
+
+    n = int(percentage * len(data_y))
+    
+    # Split the data
+    first_X = data_X[:n]
+    first_y = data_y[:n]
+    second_X = data_X[n:]
+    second_y = data_y[n:]
+
+    return first_X, first_y, second_X, second_y

@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from utils import *
 
 def read_monk(path):
     """
@@ -40,11 +41,14 @@ def read_cup(path_tr, path_ts):
     targets_array = targets.to_numpy(dtype=np.float32)
 
     # Take the first 80% of the training dataset as training set and the remaining 20% as internal test set
+    train_dataset_array, targets_array, internal_test_dataset_array, internal_test_targets_array = split_data(train_dataset_array, targets_array, 0.8)
+    """
     n = int(0.8 * len(train_dataset_array))
     train_dataset_array = train_dataset_array[:n]
     targets_array = targets_array[:n]
     internal_test_dataset_array = train_dataset_array[n:]
     internal_test_targets_array = targets_array[n:]
+    """
 
     # Read the test dataset (blind)
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10']

@@ -4,6 +4,7 @@ from neural_network import NeuralNetwork
 import matplotlib.pyplot as plt
 from itertools import product
 from sklearn.model_selection import train_test_split
+from utils import *
 
 def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task):
 
@@ -23,16 +24,15 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.1, 0.1]}]
 
     print(f"Number of hyperparameters combinations: {len(hyperparameters)}")
+
+    #print("Hold out\n")
+    #best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task)
+
     # Select the best hyperparameters and best model using K-fold cross validation
     print("K-fold cross validation\n")
     best_theta, best_model = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task)
     
-    #print("Hold out\n")
-    #best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task)
-    
-    
     print(f"Best hyperparameters: {best_theta}")
-
 
     # Train the model on the whole training set using the best hyperparameters
     best_model.train(data_X, data_y)
@@ -56,7 +56,9 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
         best_model = None
         
         for theta in hyperparameter:
-            X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.1, random_state=42)
+            #X_train, X_val, y_train, y_val = train_test_split(data_X, data_y, test_size=0.1, random_state=42)
+            X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.9)
+
             indices = np.random.permutation(len(y_train))
             X_shuffled = X_train[indices]
             y_shuffled = y_train[indices]
@@ -87,6 +89,7 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
                 best_theta = cp.deepcopy(theta)
                 best_model = cp.deepcopy(network)
                 print(f"\nBest validation error: {val_loss}\n")
+
         return best_theta, best_model
         
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K, task):
@@ -110,14 +113,12 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     best_model = None
     best_validation_error = float('inf')
 
-    m = len(data_y)
-
     # Cycle for grid search
     for theta in hyperparams:
         tot_validation_error = 0.0
         #print(f"\nCurrent hyperparameters: {theta}\n")
 
-        indices = np.random.permutation(m)
+        indices = np.random.permutation(len(data_y))
         X_shuffled = data_X[indices]
         y_shuffled = data_y[indices]
 
@@ -227,6 +228,7 @@ def generate_combinations_from_ranges(hyperparameters_ranges):
 
     return result_combinations
 
+# DA SPOSTARE
 def model_assessment(final_model, test_X, test_y):
     # Compute accuracy on test set
     test_predictions = final_model.predict(test_X)

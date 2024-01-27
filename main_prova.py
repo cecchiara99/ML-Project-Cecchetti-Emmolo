@@ -1,5 +1,5 @@
 from read_data import *
-from model_selection import *
+from model_selection_assessment import *
 from utils import *
 
 # Specify the paths to your training and test files
@@ -39,10 +39,11 @@ input_size = data_X.shape[1]
 output_size = data_y.shape[1]
 activation_hidden = "sigmoid"
 activation_output = "tanh"
+K = 5
 
 
 # Train the model on the training set and select the best model
-best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K=5, task=task)
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task)
 
 model_assessment(best_model, test_X, test_y)
 
