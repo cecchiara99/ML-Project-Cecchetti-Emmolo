@@ -11,19 +11,18 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     hyperparameters_ranges =  {
         # Specify range (lower_limit, upper_limit, step)
         'hidden_size': (3, 5, 1),           
-        'learning_rate': (0.5, 0.9, 0.2),
+        'learning_rate': (0.1, 0.9, 0.1),
         'epochs': (400, 1000, 100),
         'batch_size': (64, 128, 64),
-        'momentum': (0.7, 0.9, 0.01),
-        'lambda_reg': (0.001, 0.01, 0.01),
+        'momentum': (0.5, 0.9, 0.1),
+        'lambda_reg': [0.001, 0.01, 0.1],
         'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
     }
 
     #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
-    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.1, 0.1]}]
+    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 1000, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
 
-    print(f"Number of hyperparameters combinations: {len(hyperparameters)}")
 
     #print("Hold out\n")
     #best_theta, best_model = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task)
@@ -40,7 +39,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     # Compute accuracy on validation set
     val_predictions = best_model.predict(data_X)
     accuracy = best_model.compute_accuracy(data_y, val_predictions)
-    print(" Accuracy: ", accuracy)
+    print("Final accuracy: ", accuracy)
 
     # Copy the best model
     final_model = cp.deepcopy(best_model)
@@ -83,12 +82,13 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
                 if val_loss < val_losses[-2]:
                     best_theta = cp.deepcopy(theta)
                     best_model = cp.deepcopy(network)
-                    print(f"\nBest validation error: {val_loss}\n")
-                    print(f"\nBest accuracy: {accuracy}\n")
+                    
+                    print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
             else:
                 best_theta = cp.deepcopy(theta)
                 best_model = cp.deepcopy(network)
-                print(f"\nBest validation error: {val_loss}\n")
+                print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
+            
 
         return best_theta, best_model
         
@@ -112,6 +112,8 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     best_theta = None
     best_model = None
     best_validation_error = float('inf')
+    best_accuracy = 0.0
+    accuracies = []
 
     # Cycle for grid search
     for theta in hyperparams:
@@ -130,22 +132,31 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             # Train the model on the training set
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
             network.train(training_X, training_y)
+            
 
             # Evaluate the model on the validation set
             validation_error = network.evaluate(validation_X, validation_y, task)
+            val_predictions = network.predict(validation_X)
+            accuracy = network.compute_accuracy(validation_y, val_predictions)
+            accuracies.append(accuracy)
             
             tot_validation_error += validation_error
+
 
         # Compute the average validation error
         avg_validation_error = tot_validation_error / K
         #print(f"\nAverage validation error: {avg_validation_error}\n")
 
+        
+
         # Update best hyperparameter and best model if the current ones are better
         if avg_validation_error < best_validation_error:
+            if accuracies[-1] > best_accuracy:
+                best_accuracy = accuracies[-1]
             best_validation_error = avg_validation_error
             best_theta = cp.deepcopy(theta)
             best_model = cp.deepcopy(network)
-            print(f"\nBest validation error: {best_validation_error}\n")
+            print(f"\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
 
     return best_theta, best_model
 
@@ -180,21 +191,15 @@ def split_data_into_folds(data_X, data_y, K, k):
     return training_X, training_y, validation_X, validation_y
 
 def generate_combinations_from_ranges(hyperparameters_ranges):
-    
-    """
-    Generate all the possible combinations of hyperparameters values from the specified ranges
-
-    :param hyperparameters_ranges: a dictionary containing the ranges or list of pairs of the hyperparameters
-
-    :return: a list of dictionaries containing all the possible combinations of hyperparameters values
-    """
-
     hyperparameters = []
-    
+
     for key, value in hyperparameters_ranges.items():
         if key == 'w_init_limit' and isinstance(value, list):
             # Flatten the list of pairs
             values = [item for sublist in value for item in sublist]
+        elif key == 'lambda_reg' and isinstance(value, list):
+            # Use the specified list
+            values = value
         else:
             # Use the specified range
             lower_limit, upper_limit, step = value
@@ -215,16 +220,21 @@ def generate_combinations_from_ranges(hyperparameters_ranges):
     values_combinations = list(product(*[params[1] for params in all_combinations]))
 
     result_combinations = []
-    
+
     for combination in values_combinations:
         dictionary_combination = {
-            param[0]: round(combination[i], 3) if param[0] == 'lambda_reg' else round(combination[i], 2)
+            param[0]: round(combination[i], 2)
             for i, param in enumerate(all_combinations) if param[0] != 'w_init_limit'
         }
-        # Add the 'w_init_limit' key without rounding
+        # Add the 'w_init_limit' and 'lambda_reg' keys without rounding
         w_init_limit_index = [i for i, param in enumerate(all_combinations) if param[0] == 'w_init_limit'][0]
+        lambda_reg_index = [i for i, param in enumerate(all_combinations) if param[0] == 'lambda_reg'][0]
         dictionary_combination['w_init_limit'] = combination[w_init_limit_index]
+        dictionary_combination['lambda_reg'] = combination[lambda_reg_index]
         result_combinations.append(dictionary_combination)
+        print(dictionary_combination)
+    
+    print(f"\nNumber of combinations: {len(result_combinations)}\n")
 
     return result_combinations
 

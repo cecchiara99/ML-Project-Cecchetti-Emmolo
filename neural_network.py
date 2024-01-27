@@ -82,10 +82,10 @@ class NeuralNetwork:
         weights_input_hidden_gradient += (self.lambda_reg / m) * self.weights_input_hidden
 
         # Update with momentum
-        self.weights_hidden_output -= self.momentum * self.learning_rate * weights_hidden_output_gradient
-        self.biases_output -= self.momentum * self.learning_rate * biases_output_gradient
-        self.weights_input_hidden -= self.momentum * self.learning_rate * weights_input_hidden_gradient
-        self.biases_hidden -= self.momentum * self.learning_rate * biases_hidden_gradient
+        self.weights_hidden_output -= self.momentum * self.learning_rate * np.clip(weights_hidden_output_gradient, -1e10, 1e10)
+        self.biases_output -= self.momentum * self.learning_rate * np.clip(biases_output_gradient, -1e10, 1e10)
+        self.weights_input_hidden -= self.momentum * self.learning_rate * np.clip(weights_input_hidden_gradient, -1e10, 1e10)
+        self.biases_hidden -= self.momentum * self.learning_rate * np.clip(biases_hidden_gradient, -1e10, 1e10)
 
     def train(self, X, y):
         m = len(y)
