@@ -13,7 +13,7 @@ path_file_test_3 = './monk+s+problems/monks-3.test'
 path_file_train_cup = './cup+problem/ML-CUP23-TR.csv'
 path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
-task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
+task = "cup" # "monk1" or "monk2" or "monk3" or "cup"
 data_X = None
 data_y = None
 

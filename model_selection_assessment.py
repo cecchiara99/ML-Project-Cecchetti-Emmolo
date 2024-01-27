@@ -49,49 +49,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
     return final_model
 
-def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter, task):
-        
-        val_losses, accuracies = [], []
-
-        network = None
-        best_theta = None
-        best_model = None
-        
-        for theta in hyperparameter:
-            X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.9)
-
-            indices = np.random.permutation(len(y_train))
-            X_shuffled = X_train[indices]
-            y_shuffled = y_train[indices]
-
-            network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
-            network.train(X_shuffled, y_shuffled, X_val, y_val, task)
-
-            # Evaluate on validation set
-            val_loss = network.evaluate(X_val, y_val, task)
-            val_losses.append(val_loss)
-
-            # Compute accuracy on validation set
-            val_predictions = network.predict(X_val)
-            accuracy = network.compute_accuracy(y_val, val_predictions)
-            accuracies.append(accuracy)
-
-            
-            print(f"Validation Loss: {val_loss}, Accuracy: {accuracy}, Hyperparameters: {theta}")
-
-            # Update best hyperparameter and best model if the current ones are better
-            if len(val_losses) > 1:
-                if val_loss < val_losses[-2]:
-                    best_theta = cp.deepcopy(theta)
-                    best_model = cp.deepcopy(network)
-                    
-                    print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
-            else:
-                best_theta = cp.deepcopy(theta)
-                best_model = cp.deepcopy(network)
-                print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
-        return best_theta, best_model
-        
+       
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K, task, test_X, test_y):
     """
     Perform K-fold cross validation to select the best hyperparameters and the best model
@@ -174,6 +132,49 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
 
     return best_theta, best_model, best_hyperparams
 
+def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter, task):
+        
+        val_losses, accuracies = [], []
+
+        network = None
+        best_theta = None
+        best_model = None
+        
+        for theta in hyperparameter:
+            X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.9)
+
+            indices = np.random.permutation(len(y_train))
+            X_shuffled = X_train[indices]
+            y_shuffled = y_train[indices]
+
+            network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
+            network.train(X_shuffled, y_shuffled, X_val, y_val, task)
+
+            # Evaluate on validation set
+            val_loss = network.evaluate(X_val, y_val, task)
+            val_losses.append(val_loss)
+
+            # Compute accuracy on validation set
+            val_predictions = network.predict(X_val)
+            accuracy = network.compute_accuracy(y_val, val_predictions)
+            accuracies.append(accuracy)
+
+            
+            print(f"Validation Loss: {val_loss}, Accuracy: {accuracy}, Hyperparameters: {theta}")
+
+            # Update best hyperparameter and best model if the current ones are better
+            if len(val_losses) > 1:
+                if val_loss < val_losses[-2]:
+                    best_theta = cp.deepcopy(theta)
+                    best_model = cp.deepcopy(network)
+                    
+                    print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
+            else:
+                best_theta = cp.deepcopy(theta)
+                best_model = cp.deepcopy(network)
+                print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
+        return best_theta, best_model
+ 
 def split_data_into_folds(data_X, data_y, K, k):
     """
     Split the data into K folds and return the k-th fold as validation set and the rest as training set
