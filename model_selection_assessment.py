@@ -12,7 +12,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         # Specify range (lower_limit, upper_limit, step)
         'hidden_size': (3, 4, 1),           
         'learning_rate': (0.1, 0.9, 0.1),
-        'epochs': (100, 500, 100),
+        'epochs': (400, 500, 100),
         'batch_size': (64, 128, 64),
         'momentum': (0.5, 0.9, 0.1),
         'lambda_reg': [0.001, 0.01, 0.1],
