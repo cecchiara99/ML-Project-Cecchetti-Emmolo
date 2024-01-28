@@ -160,7 +160,7 @@ class NeuralNetwork:
     def compute_accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
     
-    def evaluate(self, X, y, task):
+    def evaluate(self, X, y):
         _, output = self.forward_propagation(X)
         loss = mean_squared_error(y, output)
         return loss

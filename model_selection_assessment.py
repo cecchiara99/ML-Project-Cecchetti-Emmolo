@@ -7,7 +7,7 @@ from utils import *
 import json
 import shutil
 
-def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task, test_X, test_y, type_selection = "k-fold"):
+def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection = "k-fold"):
 
     len_data = data_X.shape[0]
     
@@ -23,16 +23,16 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     }
 
     #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
-    #print(f"\nNumber of combinations: {len(hyperparameters)}\n")
 
     hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 400, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
 
     if type_selection == "k-fold":
-        print("\n INIZIO K-fold cross validation\n")
-        best_theta, best_model, best_hyperparams, best_validation_error = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y, patience=10)
+        K = 5
+        print(f"\nINIZIO K-fold cross validation, K = {K} \n")
+        best_theta, best_model, best_validation_error = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y, patience=10)
     elif type_selection == "hold-out":
-        print("\n INIZIO Hold-out\n")
-        best_theta, best_model, best_hyperparams, best_validation_error = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, test_X, test_y, patience=10)
+        print("\nINIZIO Hold-out\n")
+        best_theta, best_model, best_validation_error = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, test_X, test_y, patience=10)
     
 
     print("END MODEL SELECTION, START RETRAINING...\n")
@@ -47,28 +47,37 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         val_predictions = best_model.predict(data_X)
         accuracy = best_model.compute_accuracy(data_y, val_predictions)
         print("Final accuracy (after retraining): ", accuracy)
+    else:
+        mee = mean_euclidean_error(data_y, best_model.predict(data_X))
+        print("Final MEE (after retraining): ", mee)
     
     # Copy the best model
     final_model = cp.deepcopy(best_model)
+    
+    # Specify the source and destination file paths
+    source_file_learning = './learning_curve.png'
+    destination_file_learning = './model_graphs/' + task+ '_'+ type_selection + '_learning_curve.jpg'
 
-
-    if task == "monk1" or task == "monk2" or task == "monk3":
-        # Specify the source and destination file paths
-        source_file_learning = './learning_curve.png'
-        source_file_accuracy = './accuracy_curve.png'
-
-        destination_file_learning = './model_graphs/' + task+ '_'+ type_selection + '_learning_curve.jpg'
-        destination_file_accuracy = './model_graphs/' + task + '_'+ type_selection  + '_accuracy.jpg'
-
-        # Copy and rename the image file
-        with open(source_file_learning, 'rb') as f:
-            with open(destination_file_learning, 'wb+') as f1:
+    # Copy and rename the image file
+    with open(source_file_learning, 'rb') as f:
+        with open(destination_file_learning, 'wb+') as f1:
+            shutil.copyfileobj(f, f1)
+    
+    if task == "cup":
+        source_file_mee = './mee_curve.png'
+        destination_file_mee = './model_graphs/' + task + '_'+ type_selection  + '_mee.jpg'
+        with open(source_file_mee, 'rb') as f:
+            with open(destination_file_mee, 'wb+') as f1:
                 shutil.copyfileobj(f, f1)
-        
+    else:
+        source_file_accuracy = './accuracy_curve.png'
+        destination_file_accuracy = './model_graphs/' + task + '_'+ type_selection  + '_accuracy.jpg'
         with open(source_file_accuracy, 'rb') as f:
             with open(destination_file_accuracy, 'wb+') as f1:
                 shutil.copyfileobj(f, f1)
 
+    if task == "monk1" or task == "monk2" or task == "monk3":
+        # Create a dictionary containing the model info
         model_info_monk = {
             'theta': best_theta,
             'model_selection': type_selection,
@@ -81,6 +90,20 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         # Save the model info in a json file
         with open('./models_info/'+ task+ '_' + type_selection +'_model_info.json', 'w+') as outfile:
             json.dump(model_info_monk, outfile)
+    else:
+        # Create a dictionary containing the model info
+        model_info_cup = {
+            'theta': best_theta,
+            'model_selection': type_selection,
+            'validation_error': best_validation_error,
+            'mee': mee,
+            'img_learning_curve': destination_file_learning,
+            'img_mee_curve': destination_file_mee,
+        }
+
+        # Save the model info in a json file
+        with open('./models_info/'+ task+ '_' + type_selection +'_model_info.json', 'w+') as outfile:
+            json.dump(model_info_cup, outfile)
 
     return final_model
   
@@ -110,8 +133,6 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     best_hyperparams = []
 
     left_combinations = len(hyperparams)
-
-    count_patience = 0
 
     # Cycle for grid search
     for theta in hyperparams:
@@ -146,7 +167,9 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
 
         # Update best hyperparameter and best model if the current ones are better
         if avg_validation_error < best_validation_error:
-            count_patience = 0
+            
+            print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
+            
             best_accuracy = accuracies[-1]
                 
             best_validation_error = avg_validation_error
@@ -163,17 +186,12 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
                     best_hyperparams.pop(0)
                     best_hyperparams.append(model)
             
-            print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
-        else:
-            count_patience += 1
-            if count_patience == patience:
-                print("Early stopping after ", patience, " iterations")
-                break
+            
         
         left_combinations -= 1
         print(f"\nCombinations left: {left_combinations}\n")
     
-    return best_theta, best_model, best_hyperparams, best_validation_error
+    return best_theta, best_model, best_validation_error
 
 def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter, task, test_X, test_y, patience):
         
@@ -240,7 +258,7 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
             left_combinations -= 1
             print(f"Combinations left: {left_combinations}\n")
         
-        return best_theta, best_model, best_hyperparams ,val_losses[-1]
+        return best_theta, best_model, val_losses[-1]
  
 def split_data_into_folds(data_X, data_y, K, k):
     """
@@ -314,15 +332,19 @@ def generate_combinations_from_ranges(hyperparameters_ranges):
         dictionary_combination['w_init_limit'] = combination[w_init_limit_index]
         dictionary_combination['lambda_reg'] = combination[lambda_reg_index]
         result_combinations.append(dictionary_combination)
-
-        print(dictionary_combination)
     
-   
+    print("\nHyperparameters combinations generated\n")
+    print(f"Number of combinations: {len(result_combinations)}\n")
 
     return result_combinations
 
-def model_assessment(final_model, test_X, test_y):
-    # Compute accuracy on test set
+def model_assessment(final_model, test_X, test_y, task):
     test_predictions = final_model.predict(test_X)
-    accuracy = final_model.compute_accuracy(test_y, test_predictions)
-    print(" Accuracy TEST: ", accuracy)
+    
+    if task != "cup":
+        # Compute accuracy on test set 
+        accuracy = final_model.compute_accuracy(test_y, test_predictions)
+        print("Accuracy TEST: ", accuracy)
+    else:
+        mee = mean_euclidean_error(test_y, test_predictions)
+        print("MEE TEST: ", mee)

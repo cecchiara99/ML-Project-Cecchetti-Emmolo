@@ -16,7 +16,7 @@ path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
 task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
 
-print(f"Task: {task}\n")
+print(f"\nTask: {task}\n")
 
 data_X = None
 data_y = None
@@ -49,12 +49,18 @@ activation_hidden = "sigmoid"
 activation_output = "tanh"
 K = 5
 
+print(f"Activation hidden: {activation_hidden}\n")
+print(f"Activation output: {activation_output}\n")
+
+type_selection = 'k-fold' # "k-fold" or "hold-out"
+
+print(f"Type selection: {type_selection}\n")
 
 # Train the model on the training set and select the best model -> ultimo parametro scegliere tipo model selection ('k-fold' o 'hold-out') DI DEFAULT è K-FOLD
 
-best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task, test_X, test_y, 'k-fold')
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
 
-model_assessment(best_model, test_X, test_y)
+model_assessment(best_model, test_X, test_y, task)
 
 if task == "cup":
     predictions = best_model.predict(blind_test_X)
