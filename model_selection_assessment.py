@@ -1,11 +1,9 @@
 import numpy as np
 import copy as cp
 from neural_network import NeuralNetwork
-import matplotlib.pyplot as plt
 from itertools import product
 from sklearn.model_selection import train_test_split
 from utils import *
-import os
 import json
 import shutil
 
@@ -24,18 +22,20 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
     }
 
-    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
-    #print(f"\nNumber of combinations: {len(hyperparameters)}\n")
+    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+    print(f"\nNumber of combinations: {len(hyperparameters)}\n")
 
-    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 300, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
+    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 400, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
 
     if type_selection == "k-fold":
-        print("K-fold cross validation\n")
+        print("\n INIZIO K-fold cross validation\n")
         best_theta, best_model, best_hyperparams, best_validation_error = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y, patience=10)
     elif type_selection == "hold-out":
-        print("Hold-out\n")
+        print("\n INIZIO Hold-out\n")
         best_theta, best_model, best_hyperparams, best_validation_error = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, test_X, test_y, patience=10)
     
+
+    print("END MODEL SELECTION, START RETRAINING...\n")
     print(f"Best hyperparameters: {best_theta}")
 
     if task != "monk3":
@@ -46,7 +46,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         # Compute accuracy on validation set
         val_predictions = best_model.predict(data_X)
         accuracy = best_model.compute_accuracy(data_y, val_predictions)
-        print("Final accuracy: ", accuracy)
+        print("Final accuracy (after retraining): ", accuracy)
     
     # Copy the best model
     final_model = cp.deepcopy(best_model)
@@ -156,27 +156,23 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             if task == "cup":
                 model = {
                     'theta': best_theta,
-                    'model': best_model,
                     'validation_error': best_validation_error,
                     # AGGIUNGERE GRAFICI
                 }
-                if len(best_hyperparams) == 5:
+                if len(best_hyperparams) >= 5:
                     best_hyperparams.pop(0)
                     best_hyperparams.append(model)
             
-            print(f"\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
+            print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
         else:
             count_patience += 1
-            print(f"\nCurrent validation error: {avg_validation_error}\nCurrent hyperparameters: {theta}\nCurrent accuracy: {accuracy}\n")
             if count_patience == patience:
                 print("Early stopping after ", patience, " iterations")
                 break
         
-
         left_combinations -= 1
-        print(f"Combinations left: {left_combinations}\n")
+        print(f"\nCombinations left: {left_combinations}\n")
     
-
     return best_theta, best_model, best_hyperparams, best_validation_error
 
 def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter, task, test_X, test_y, patience):

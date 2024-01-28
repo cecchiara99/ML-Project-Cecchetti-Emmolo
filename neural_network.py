@@ -111,7 +111,10 @@ class NeuralNetwork:
                     
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
-            losses.append(batch_loss / self.batch_size)
+            #losses.append(batch_loss / self.batch_size)
+
+            losses.append(loss)    
+            
             accuracies.append(self.compute_accuracy(y, self.predict(X)))
             losses_cup.append(batch_loss_test / self.batch_size)
             test_predictions = self.predict(X_test)
