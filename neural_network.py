@@ -162,11 +162,5 @@ class NeuralNetwork:
     
     def evaluate(self, X, y, task):
         _, output = self.forward_propagation(X)
-        if task == "monk1" or task == "monk2" or task == "monk3":
-            loss = mean_squared_error(y, output)
-        elif task == "cup":
-            loss = mean_euclidean_error(y, output)  
-        else: 
-            print("Error: task not recognized")
-            loss = None
+        loss = mean_squared_error(y, output)
         return loss

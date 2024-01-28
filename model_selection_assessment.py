@@ -132,7 +132,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             network.train(training_X, training_y, test_X, test_y, task)
             
             # Evaluate the model on the validation set
-            validation_error = network.evaluate(validation_X, validation_y, task)
+            validation_error = network.evaluate(validation_X, validation_y)
             val_predictions = network.predict(validation_X)
             accuracy = network.compute_accuracy(validation_y, val_predictions)
             accuracies.append(accuracy)
@@ -197,7 +197,7 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
             network.train(X_shuffled, y_shuffled, test_X, test_y, task)
 
             # Evaluate on validation set
-            val_loss = network.evaluate(X_val, y_val, task)
+            val_loss = network.evaluate(X_val, y_val)
             val_losses.append(val_loss)
 
             # Compute accuracy on validation set
