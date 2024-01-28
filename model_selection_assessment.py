@@ -16,16 +16,16 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         # Specify range (lower_limit, upper_limit, step)
         'hidden_size': (3, 4, 1),           
         'learning_rate': (0.1, 0.9, 0.1),
-        'epochs': (300, 600, 100),
+        'epochs': (350, 500, 50),
         'batch_size': [64, len_data],
         'momentum': (0.5, 0.9, 0.1),
         'lambda_reg': [0.001, 0.01, 0.1],
         'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
     }
 
-    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
-    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 500, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
+    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 500, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
 
     if type_selection == "k-fold":
         K = 5
@@ -77,7 +77,6 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     
     #PLOT DEI VARI GRAFICI A SECONDA DEL TASK
     if task == 'cup':
-        print(len(mees)), print(len(mees_test))
 
         plt.plot(range(0, final_model.epochs), mees, label='Validation', color='blue')
         plt.plot(range(0, final_model.epochs), mees_test, label='Test', color='red')
@@ -232,8 +231,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
         # Compute the average validation error
         avg_validation_error = tot_validation_error / K
 
-        print(f"\nValidation error: {avg_validation_error}\n")
-        print(f"\nBest validation error: {best_validation_error}\n")
+        
         
 
         # Update best hyperparameter and best model if the current ones are better
