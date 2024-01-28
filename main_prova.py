@@ -47,25 +47,18 @@ print(f"Output size: {output_size}\n")
 
 activation_hidden = "sigmoid"
 activation_output = "tanh"
+K = 5
 
-print(f"\nActivation function for hidden layers: {activation_hidden}\n")
-print(f"\nActivation function for output layer: {activation_output}\n")
 
 # Train the model on the training set and select the best model -> ultimo parametro scegliere tipo model selection ('k-fold' o 'hold-out') DI DEFAULT è K-FOLD
 
-type_selection = 'k-fold' # 'k-fold' or 'hold-out'
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task, test_X, test_y, 'k-fold')
 
-print(f"\nType of model selection: {type_selection}\n")
+model_assessment(best_model, test_X, test_y)
 
-print(f"\nTraining (call to model_selection function)...\n")
-
-best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
-
-print(f"\nTraining completed\n")
-
-print(f"Start of the assessment of the best model\n")
-
-model_assessment(best_model, test_X, test_y, task)
+if task == "cup":
+    predictions = best_model.predict(blind_test_X)
+    create_cup_csv(predictions)
 
 file_path = './learning_curve.png'
 

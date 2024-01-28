@@ -22,10 +22,10 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
     }
 
-    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
-    print(f"\nNumber of combinations: {len(hyperparameters)}\n")
+    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+    #print(f"\nNumber of combinations: {len(hyperparameters)}\n")
 
-    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 400, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
+    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 400, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
 
     if type_selection == "k-fold":
         print("\n INIZIO K-fold cross validation\n")
@@ -117,7 +117,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     for theta in hyperparams:
         tot_validation_error = 0.0
         #print(f"\nCurrent hyperparameters: {theta}\n")
-
+        K = 5
         indices = np.random.permutation(len(data_y))
         X_shuffled = data_X[indices]
         y_shuffled = data_y[indices]
