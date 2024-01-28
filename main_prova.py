@@ -45,14 +45,14 @@ output_size = data_y.shape[1]
 print(f"Input size: {input_size}\n")  
 print(f"Output size: {output_size}\n")
 
-activation_hidden = "relu"
-activation_output = "identity"
+activation_hidden = "sigmoid"
+activation_output = "tanh"
 K = 5
 
 print(f"Activation hidden: {activation_hidden}\n")
 print(f"Activation output: {activation_output}\n")
 
-type_selection = 'hold-out' # "k-fold" or "hold-out"
+type_selection = 'k-fold' # "k-fold" or "hold-out"
 
 print(f"Type selection: {type_selection}\n")
 

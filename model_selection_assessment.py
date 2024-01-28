@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from utils import *
 import json
 import shutil
+import os
 
 def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection = "k-fold"):
 
@@ -24,7 +25,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
     #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
-    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 400, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
+    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 500, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.3, 0.3]}]
 
     if type_selection == "k-fold":
         K = 5
@@ -44,32 +45,39 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         
     
     print(f"Best hyperparameters: {best_theta}")
-
+    
     if task != "monk3" and task != "cup":
+        X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.90)
         print("END MODEL SELECTION, START RETRAINING...\n")
         # Train the model on the whole training set using the best hyperparameters
-        losses, test_losses, accuracies, test_accuracies = best_model.train_monk(data_X, data_y, test_X, test_y, task)
-    
-    if task == 'cup':
-        mees, mees_test = best_model.train_cup(data_X, data_y, test_X, test_y, task)
         
-    
+        validation_error, val_predictions,losses, test_losses, accuracies, test_accuracies = best_model.train_monk(X_train, y_train, test_X, test_y, task, X_val, y_val)
+        
+    if task == "monk3":
+        X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.85)
+        val_predictions = best_model.predict(X_val)
+    if task == 'cup':
+        X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.85)
+        best_epoch, validation_error, val_predictions, mees, mees_test = best_model.train_cup(data_X, data_y, test_X, test_y, task, X_val, y_val)   
+        best_model.epochs = best_epoch
+
     if task != "cup":
         # Compute accuracy on validation set
-        val_predictions = best_model.predict(data_X)
-        accuracy = best_model.compute_accuracy(data_y, val_predictions)
+        accuracy = best_model.compute_accuracy(y_val, val_predictions)
         print("Final accuracy (after retraining): ", accuracy)
     else:
-        mee = mean_euclidean_error(data_y, best_model.predict(data_X))
+        mee = mean_euclidean_error(y_val, val_predictions)
         print("\nFinal MEE (after retraining): ", mee)
     
     # Copy the best model
     final_model = cp.deepcopy(best_model)
     
+
     
     
     #PLOT DEI VARI GRAFICI A SECONDA DEL TASK
     if task == 'cup':
+        print(len(mees)), print(len(mees_test))
 
         plt.plot(range(0, final_model.epochs), mees, label='Validation', color='blue')
         plt.plot(range(0, final_model.epochs), mees_test, label='Test', color='red')
@@ -99,14 +107,22 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         plt.legend()
         plt.savefig('learning_curve.png')  
         plt.close()
+    
+    destination_folder = './model_graphs'
+    
+    # Check if the folder exists, if not, create it
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
 
     if task == "cup":
+
         source_file_mee = './mee_curve.png'
         destination_file_mee = './model_graphs/' + task + '_'+ type_selection  + '_mee.jpg'
         with open(source_file_mee, 'rb') as f:
             with open(destination_file_mee, 'wb+') as f1:
                 shutil.copyfileobj(f, f1)
     else:
+
         source_file_accuracy = './accuracy_curve.png'
         destination_file_accuracy = './model_graphs/' + task + '_'+ type_selection  + '_accuracy.jpg'
         with open(source_file_accuracy, 'rb') as f:
@@ -120,6 +136,10 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         with open(source_file_learning, 'rb') as f:
             with open(destination_file_learning, 'wb+') as f1:
                 shutil.copyfileobj(f, f1)
+    destination_folder = './model_info'
+    # Check if the folder exists, if not, create it
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
 
     if task == "monk1" or task == "monk2" or task == "monk3":
         # Create a dictionary containing the model info
@@ -131,6 +151,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
             'img_learning_curve': destination_file_learning,
             'img_accuracy': destination_file_accuracy,
         }
+
 
         # Save the model info in a json file
         with open('./models_info/'+ task+ '_' + type_selection +'_model_info.json', 'w+') as outfile:
@@ -196,14 +217,9 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
             
             if task != "cup":
-                losses, test_losses, accuracies, test_accuracies = network.train_monk(training_X, training_y, test_X, test_y, task)
+                validation_error,val_predictions,losses, test_losses, accuracies, test_accuracies = network.train_monk(training_X, training_y, test_X, test_y, task, validation_X, validation_y)
             else:
-                mees, mees_test = network.train_cup(training_X, training_y, test_X, test_y, task)
-            
-            # Evaluate the model on the validation set
-            validation_error = network.evaluate(validation_X, validation_y, task)
-            
-            val_predictions = network.predict(validation_X)
+                best_epoch,validation_error,val_predictions,mees, mees_test = network.train_cup(training_X, training_y, test_X, test_y, task, validation_X, validation_y)
             
             if task != "cup":
                 accuracies_validation.append(network.compute_accuracy(validation_y, val_predictions))
@@ -228,6 +244,8 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
 
             best_theta = cp.deepcopy(theta)
             best_model = cp.deepcopy(network)
+
+            
 
             if task != "cup":
                 best_accuracy = np.mean(accuracies_validation[:len(validation_y)]) 
@@ -257,8 +275,14 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             
             left_combinations -= 1
             print(f"\nCombinations left: {left_combinations}\n")
+
+            
     
     if task == "cup":
+        destination_folder = './model_best_cup'
+        # Check if the folder exists, if not, create it
+        if not os.path.exists(destination_folder):
+            os.makedirs(destination_folder)
         # Save the model info in a json file
         with open('./models_best_cup/'+ task+ '_k-fold' +'_model_info.json', 'w+') as outfile:
             json.dump(best_hyperparams, outfile)
@@ -278,29 +302,24 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
         best_validation_error = float('inf')
         
         best_hyperparams = []
+
+        X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.8)
         
         for theta in hyperparameter:
             val_losses, accuracies_validation, mees_validation, mees_test = [], [], [], []
-            
-            X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.8)
-
-            indices = np.random.permutation(len(y_train))
-            X_shuffled = X_train[indices]
-            y_shuffled = y_train[indices]
 
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
             
             if task != "cup":
-                losses, test_losses, accuracies, test_accuracies = network.train_monk(X_train, y_train, test_X, test_y, task)
+                validation_error,val_predictions,losses, test_losses, accuracies, test_accuracies = network.train_monk(X_train, y_train, test_X, test_y, task, X_val, y_val)
             else:
-                mees, mees_test = network.train_cup(X_train, y_train, test_X, test_y, task)
+                best_epoch,validation_error,val_predictions,mees, mees_test = network.train_cup(X_train, y_train, test_X, test_y, task, X_val, y_val)
                 
             # Evaluate on validation set
-            val_loss = network.evaluate(X_val, y_val, task)
-            val_losses.append(val_loss)
+            
+            val_losses.append(validation_error)
 
             # Compute accuracy on validation set
-            val_predictions = network.predict(X_val)
 
             if task != "cup":
                 accuracies_validation.append(network.compute_accuracy(y_val, val_predictions))
@@ -310,16 +329,17 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
 
             # Update best hyperparameter and best model if the current ones are better
             if len(val_losses) > 1:
-                if val_loss < val_losses[-2]:
+                if validation_error < val_losses[-2]:
                     best_theta = cp.deepcopy(theta)
                     best_model = cp.deepcopy(network)
 
-                    best_validation_error = val_loss
+                    best_validation_error = validation_error
+                    
                     
                     if task != "cup":
-                        print(f"\nNEW BETTER!!\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracies_validation[-1]}\n")
+                        print(f"\nNEW BETTER!!\nBest validation error: {validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {accuracies_validation[-1]}\n")
                     else:
-                        print(f"\nNEW BETTER!!\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest MEE: {mees_validation[-1]}\n")
+                        print(f"\nNEW BETTER!!\nBest validation error: {validation_error}\nBest hyperparameters: {theta}\nBest MEE: {mees_validation[-1]}\n")
                         
                         # Save the 5 best model info in a json file
                         
@@ -337,7 +357,7 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
             else:
                 best_theta = cp.deepcopy(theta)
                 best_model = cp.deepcopy(network)
-                best_validation_error = val_loss
+                best_validation_error = validation_error
                 if task == "cup":
                     model = {
                                 'theta': best_theta,
@@ -348,13 +368,14 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
 
                     best_hyperparams.append(model)
 
-                
-            
-        
             left_combinations -= 1
             print(f"Combinations left: {left_combinations}\n")
         
         if task == "cup":
+            destination_folder = './model_best_cup'
+            # Check if the folder exists, if not, create it
+            if not os.path.exists(destination_folder):
+                os.makedirs(destination_folder)
             # Save the model info in a json file
             with open('./models_best_cup/'+ task+ '_hold-out' +'_model_info.json', 'w+') as outfile:
                 json.dump(best_hyperparams, outfile)

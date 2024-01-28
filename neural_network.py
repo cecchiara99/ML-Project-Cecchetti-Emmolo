@@ -84,7 +84,7 @@ class NeuralNetwork:
         self.weights_input_hidden -= self.momentum * self.learning_rate * np.clip(weights_input_hidden_gradient, -1e10, 1e10)
         self.biases_hidden -= self.momentum * self.learning_rate * np.clip(biases_hidden_gradient, -1e10, 1e10)
 
-    def train_monk(self, X, y, X_test, y_test,task):
+    def train_monk(self, X, y, X_test, y_test,task, validation_X, validation_y):
         m = len(y)
         losses = []
         test_losses = []
@@ -107,6 +107,12 @@ class NeuralNetwork:
                     
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
+            # Evaluate the model on the validation set
+            validation_error = self.evaluate(validation_X, validation_y, task)
+
+            
+            
+            val_predictions = self.predict(validation_X)
             losses.append(loss)  
             
             accuracies.append(self.compute_accuracy(y, self.predict(X)))
@@ -115,15 +121,16 @@ class NeuralNetwork:
             accuracy_test = self.compute_accuracy(y_test, test_predictions)
             accuracies_test.append(accuracy_test)
 
-        return losses, test_losses, accuracies, accuracies_test
+        return validation_error, val_predictions,losses, test_losses, accuracies, accuracies_test
   
-    def train_cup(self, X, y, X_test, y_test,task):
+    def train_cup(self, X, y, X_test, y_test,task, validation_X, validation_y, patience=10):
         m = len(y)
         losses = []
         test_losses = []
         
         mees = []
         mees_test = []
+        best_validation_error = float('inf')
 
         for epoch in range(self.epochs):
 
@@ -132,21 +139,35 @@ class NeuralNetwork:
             for i in range(0, m, self.batch_size):
                 X_batch = X[i:i + self.batch_size]
                 y_batch = y[i:i + self.batch_size]
-                #X_batch = X_shuffled[i:i + self.batch_size]
-                #y_batch = y_shuffled[i:i + self.batch_size]
                 
                 hidden_layer_output, output = self.forward_propagation(X_batch)
                     
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
+            # Evaluate the model on the validation set
+            validation_error = self.evaluate(validation_X, validation_y, task)
+            # Check for early stopping
+            if validation_error < best_validation_error:
+                best_validation_error = validation_error
+                consecutive_no_improvement = 0
+            else:
+                consecutive_no_improvement += 1
+
+            if consecutive_no_improvement >= patience:
+                print(f"Early stopping at epoch {epoch} with validation error {best_validation_error}")
+                break
             
-            mees.append(mean_euclidean_error(y, self.predict(X)))
+            mees.append(validation_error)
+
+            val_predictions = self.predict(validation_X)
             
             test_predictions = self.predict(X_test)
             mees_test.append(mean_euclidean_error(y_test, test_predictions))
+
+            
            
 
-        return mees, mees_test 
+        return epoch, validation_error, val_predictions, mees, mees_test 
 
     def predict(self, X):
         _, output = self.forward_propagation(X)
