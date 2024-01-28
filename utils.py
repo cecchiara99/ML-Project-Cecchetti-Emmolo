@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from datetime import date
+from matplotlib import pyplot as plt
 
 def mean_squared_error(y_true, y_pred):
     """
@@ -94,6 +95,7 @@ def create_cup_csv(outputs):
     print(f"File CSV '{output_file_path}' created")
 
 def split_data(data_X, data_y, percentage):
+
     """
     Split the data into different sets, basing on the percentage.
 
@@ -112,3 +114,6 @@ def split_data(data_X, data_y, percentage):
     second_y = data_y[n:]
 
     return first_X, first_y, second_X, second_y
+
+def plot_graphs():
+    pass

@@ -84,18 +84,50 @@ class NeuralNetwork:
         self.weights_input_hidden -= self.momentum * self.learning_rate * np.clip(weights_input_hidden_gradient, -1e10, 1e10)
         self.biases_hidden -= self.momentum * self.learning_rate * np.clip(biases_hidden_gradient, -1e10, 1e10)
 
-    def train(self, X, y, X_test, y_test,task):
+    def train_monk(self, X, y, X_test, y_test,task):
         m = len(y)
         losses = []
         test_losses = []
+        
         accuracies = []
         accuracies_test = []
-        losses_cup = []
 
         for epoch in range(self.epochs):
 
             batch_loss = 0
-            batch_loss_test = 0
+            
+            for i in range(0, m, self.batch_size):
+                X_batch = X[i:i + self.batch_size]
+                y_batch = y[i:i + self.batch_size]
+                
+                
+                hidden_layer_output, output = self.forward_propagation(X_batch)
+                loss = self.calculate_loss(y_batch, output)
+                batch_loss += loss
+                    
+                self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
+            
+            losses.append(loss)  
+            
+            accuracies.append(self.compute_accuracy(y, self.predict(X)))
+            test_predictions = self.predict(X_test)
+            test_losses.append(self.calculate_loss(y_test, test_predictions))
+            accuracy_test = self.compute_accuracy(y_test, test_predictions)
+            accuracies_test.append(accuracy_test)
+
+        return losses, test_losses, accuracies, accuracies_test
+  
+    def train_cup(self, X, y, X_test, y_test,task):
+        m = len(y)
+        losses = []
+        test_losses = []
+        
+        mees = []
+        mees_test = []
+
+        for epoch in range(self.epochs):
+
+            batch_loss = 0
             
             for i in range(0, m, self.batch_size):
                 X_batch = X[i:i + self.batch_size]
@@ -104,55 +136,18 @@ class NeuralNetwork:
                 #y_batch = y_shuffled[i:i + self.batch_size]
                 
                 hidden_layer_output, output = self.forward_propagation(X_batch)
-                loss = self.calculate_loss(y_batch, output)
-                batch_loss += loss
-                if task == "cup":
-                    batch_loss_test += mean_euclidean_error(y_test, self.predict(X_test))
                     
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
-            #losses.append(batch_loss / self.batch_size)
-
-            losses.append(loss)    
             
-            accuracies.append(self.compute_accuracy(y, self.predict(X)))
-            losses_cup.append(batch_loss_test / self.batch_size)
+            mees.append(mean_euclidean_error(y, self.predict(X)))
+            
             test_predictions = self.predict(X_test)
-            test_losses.append(self.calculate_loss(y_test, test_predictions))
-            accuracy_test = self.compute_accuracy(y_test, test_predictions)
-            accuracies_test.append(accuracy_test)
+            mees_test.append(mean_euclidean_error(y_test, test_predictions))
+           
 
-  
-        #loss curve
-        if task == "cup":
-            plt.plot(range(0, self.epochs), losses_cup, label='Training Loss', color='blue')
-            plt.plot(range(0, self.epochs), test_losses, label='Test Loss', color='red')
-        else:
-            plt.plot(range(0, self.epochs), losses, label='Training Loss', color='blue')
-            plt.plot(range(0, self.epochs), test_losses, label='Test Loss', color='red')
-        
-        plt.xlabel('Epoch')
-        
-        if task == "cup":
-            plt.ylabel('MEE')
-        else:
-            plt.ylabel('MSE')
-        
-        plt.title('Learning Curve')
-        plt.legend()
-        plt.savefig('learning_curve.png')  
-        plt.close()
-        
-        #accuracy curve
-        plt.plot(range(0, self.epochs), accuracies, label='Accuracy_Training', color='blue')
-        plt.plot(range(0, self.epochs), accuracies_test, label='Test Accuracy', color='red')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        plt.title('Accuracy Curve')
-        plt.legend()
-        plt.savefig('accuracy_curve.png')  
-        plt.close()
-  
+        return mees, mees_test 
+
     def predict(self, X):
         _, output = self.forward_propagation(X)
         return np.round(output)
@@ -160,7 +155,11 @@ class NeuralNetwork:
     def compute_accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
     
-    def evaluate(self, X, y):
+    def evaluate(self, X, y,task):
         _, output = self.forward_propagation(X)
-        loss = mean_squared_error(y, output)
+
+        if task != "cup":
+            loss = mean_squared_error(y, output)
+        else:
+            loss = mean_euclidean_error(y, output)
         return loss

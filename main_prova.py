@@ -14,7 +14,7 @@ path_file_test_3 = './monk+s+problems/monks-3.test'
 path_file_train_cup = './cup+problem/ML-CUP23-TR.csv'
 path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
-task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
+task = "cup" # "monk1" or "monk2" or "monk3" or "cup"
 
 print(f"\nTask: {task}\n")
 
@@ -45,14 +45,14 @@ output_size = data_y.shape[1]
 print(f"Input size: {input_size}\n")  
 print(f"Output size: {output_size}\n")
 
-activation_hidden = "sigmoid"
-activation_output = "tanh"
+activation_hidden = "relu"
+activation_output = "identity"
 K = 5
 
 print(f"Activation hidden: {activation_hidden}\n")
 print(f"Activation output: {activation_output}\n")
 
-type_selection = 'k-fold' # "k-fold" or "hold-out"
+type_selection = 'hold-out' # "k-fold" or "hold-out"
 
 print(f"Type selection: {type_selection}\n")
 
@@ -73,5 +73,9 @@ if os.path.exists(file_path):
 
 file_path = './accuracy_curve.png'
 
+if os.path.exists(file_path):
+    os.remove(file_path)
+
+file_path = './mee_curve.png'
 if os.path.exists(file_path):
     os.remove(file_path)

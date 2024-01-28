@@ -10,7 +10,7 @@ import shutil
 def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection = "k-fold"):
 
     len_data = data_X.shape[0]
-    
+    test_losses = []
     hyperparameters_ranges =  {
         # Specify range (lower_limit, upper_limit, step)
         'hidden_size': (3, 4, 1),           
@@ -29,18 +29,30 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     if type_selection == "k-fold":
         K = 5
         print(f"\nINIZIO K-fold cross validation, K = {K} \n")
-        best_theta, best_model, best_validation_error = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y, patience=10)
+
+        if task != "cup":
+            best_theta, best_model,best_validation_error, best_accuracy, losses, test_losses, accuracies, test_accuracies = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y, patience=10)
+        else:
+            best_theta, best_model,best_validation_error, best_mee, mees_validation, mees_test, mees = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, test_X, test_y, patience=10)
+
     elif type_selection == "hold-out":
         print("\nINIZIO Hold-out\n")
-        best_theta, best_model, best_validation_error = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, test_X, test_y, patience=10)
+        if task != "cup":
+            best_theta, best_model,best_validation_error, losses, test_losses, accuracies, test_accuracies = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, test_X, test_y, patience=10)
+        else:
+            best_theta, best_model,best_validation_error, mees_validation, mees_test, mees = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, test_X, test_y, patience=10)
+        
     
-
-    print("END MODEL SELECTION, START RETRAINING...\n")
     print(f"Best hyperparameters: {best_theta}")
 
-    if task != "monk3":
+    if task != "monk3" and task != "cup":
+        print("END MODEL SELECTION, START RETRAINING...\n")
         # Train the model on the whole training set using the best hyperparameters
-        best_model.train(data_X, data_y, test_X, test_y, task)
+        losses, test_losses, accuracies, test_accuracies = best_model.train_monk(data_X, data_y, test_X, test_y, task)
+    
+    if task == 'cup':
+        mees, mees_test = best_model.train_cup(data_X, data_y, test_X, test_y, task)
+        
     
     if task != "cup":
         # Compute accuracy on validation set
@@ -49,20 +61,45 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         print("Final accuracy (after retraining): ", accuracy)
     else:
         mee = mean_euclidean_error(data_y, best_model.predict(data_X))
-        print("Final MEE (after retraining): ", mee)
+        print("\nFinal MEE (after retraining): ", mee)
     
     # Copy the best model
     final_model = cp.deepcopy(best_model)
     
-    # Specify the source and destination file paths
-    source_file_learning = './learning_curve.png'
-    destination_file_learning = './model_graphs/' + task+ '_'+ type_selection + '_learning_curve.jpg'
-
-    # Copy and rename the image file
-    with open(source_file_learning, 'rb') as f:
-        with open(destination_file_learning, 'wb+') as f1:
-            shutil.copyfileobj(f, f1)
     
+    
+    #PLOT DEI VARI GRAFICI A SECONDA DEL TASK
+    if task == 'cup':
+
+        plt.plot(range(0, final_model.epochs), mees, label='Validation', color='blue')
+        plt.plot(range(0, final_model.epochs), mees_test, label='Test', color='red')
+
+        plt.title('MEE curve')
+        plt.xlabel('Epochs')
+        plt.ylabel('MEE')
+        plt.legend()
+        plt.savefig('./mee_curve.png')
+        plt.close()
+    
+    else:
+        plt.plot(range(0, final_model.epochs), accuracies, label='Accuracy_Training', color='blue')
+        plt.plot(range(0, final_model.epochs), test_accuracies, label='Test Accuracy', color='red')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title('Accuracy Curve')
+        plt.legend()
+        plt.savefig('accuracy_curve.png')  
+        plt.close()
+
+        plt.plot(range(0, final_model.epochs), losses, label='Accuracy_Training', color='blue')
+        plt.plot(range(0, final_model.epochs), test_losses, label='Test Accuracy', color='red')
+        plt.xlabel('Epoch')
+        plt.ylabel('MSE')
+        plt.title('Learning Curve')
+        plt.legend()
+        plt.savefig('learning_curve.png')  
+        plt.close()
+
     if task == "cup":
         source_file_mee = './mee_curve.png'
         destination_file_mee = './model_graphs/' + task + '_'+ type_selection  + '_mee.jpg'
@@ -74,6 +111,14 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         destination_file_accuracy = './model_graphs/' + task + '_'+ type_selection  + '_accuracy.jpg'
         with open(source_file_accuracy, 'rb') as f:
             with open(destination_file_accuracy, 'wb+') as f1:
+                shutil.copyfileobj(f, f1)
+        # Specify the source and destination file paths
+        source_file_learning = './learning_curve.png'
+        destination_file_learning = './model_graphs/' + task+ '_'+ type_selection + '_learning_curve.jpg'
+
+        # Copy and rename the image file
+        with open(source_file_learning, 'rb') as f:
+            with open(destination_file_learning, 'wb+') as f1:
                 shutil.copyfileobj(f, f1)
 
     if task == "monk1" or task == "monk2" or task == "monk3":
@@ -97,7 +142,6 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
             'model_selection': type_selection,
             'validation_error': best_validation_error,
             'mee': mee,
-            'img_learning_curve': destination_file_learning,
             'img_mee_curve': destination_file_mee,
         }
 
@@ -127,8 +171,6 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     best_theta = None
     best_model = None
     best_validation_error = float('inf')
-    best_accuracy = 0.0
-    accuracies = []
 
     best_hyperparams = []
 
@@ -137,8 +179,10 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     # Cycle for grid search
     for theta in hyperparams:
         tot_validation_error = 0.0
-        #print(f"\nCurrent hyperparameters: {theta}\n")
-        K = 5
+        
+        accuracies_validation = []
+        mees_validation = []
+  
         indices = np.random.permutation(len(data_y))
         X_shuffled = data_X[indices]
         y_shuffled = data_y[indices]
@@ -150,115 +194,175 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
             
             # Train the model on the training set
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
-            network.train(training_X, training_y, test_X, test_y, task)
+            
+            if task != "cup":
+                losses, test_losses, accuracies, test_accuracies = network.train_monk(training_X, training_y, test_X, test_y, task)
+            else:
+                mees, mees_test = network.train_cup(training_X, training_y, test_X, test_y, task)
             
             # Evaluate the model on the validation set
-            validation_error = network.evaluate(validation_X, validation_y)
+            validation_error = network.evaluate(validation_X, validation_y, task)
+            
             val_predictions = network.predict(validation_X)
-            accuracy = network.compute_accuracy(validation_y, val_predictions)
-            accuracies.append(accuracy)
+            
+            if task != "cup":
+                accuracies_validation.append(network.compute_accuracy(validation_y, val_predictions))
+            else:
+                mees_validation.append(mean_euclidean_error(validation_y, val_predictions))
             
             tot_validation_error += validation_error
 
 
         # Compute the average validation error
         avg_validation_error = tot_validation_error / K
-        #print(f"\nAverage validation error: {avg_validation_error}\n")
+
+        print(f"\nValidation error: {avg_validation_error}\n")
+        print(f"\nBest validation error: {best_validation_error}\n")
+        
 
         # Update best hyperparameter and best model if the current ones are better
         if avg_validation_error < best_validation_error:
-            
-            print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
-            
-            best_accuracy = accuracies[-1]
-                
+            print("BEST VALIDATION ERROR UPDATED\n")
             best_validation_error = avg_validation_error
+            print(f"\nNEW BEST VALIDATION ERROR: {best_validation_error}\n")
+
             best_theta = cp.deepcopy(theta)
             best_model = cp.deepcopy(network)
+
+            if task != "cup":
+                best_accuracy = np.mean(accuracies_validation[:len(validation_y)]) 
+                print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
+
+            else:
+                best_mee = best_validation_error
+                print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest MEE: {best_mee}\n")
             
+            
+            # Save the 5 best model info in a json file
             if task == "cup":
                 model = {
                     'theta': best_theta,
-                    'validation_error': best_validation_error,
-                    # AGGIUNGERE GRAFICI
+                    'validation_error (mee)': best_validation_error,
+                    'test_error (mee)': mees_test[-1],
+                    'K-fold': K,
+                    'mees': mees,
+                    'mees_test': mees_test,
+                    
                 }
                 if len(best_hyperparams) >= 5:
                     best_hyperparams.pop(0)
                     best_hyperparams.append(model)
+                else:
+                    best_hyperparams.append(model)
             
-            
-        
-        left_combinations -= 1
-        print(f"\nCombinations left: {left_combinations}\n")
+            left_combinations -= 1
+            print(f"\nCombinations left: {left_combinations}\n")
     
-    return best_theta, best_model, best_validation_error
-
+    if task == "cup":
+        # Save the model info in a json file
+        with open('./models_best_cup/'+ task+ '_k-fold' +'_model_info.json', 'w+') as outfile:
+            json.dump(best_hyperparams, outfile)
+    
+    if task == "cup":
+        return best_theta, best_model,best_validation_error, best_mee, mees_validation, mees_test, mees
+    else:
+        return best_theta, best_model,best_validation_error, best_accuracy, losses, test_losses, accuracies, test_accuracies
+    
 def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter, task, test_X, test_y, patience):
-        
-        val_losses, accuracies = [], []
 
         network = None
         best_theta = None
         best_model = None
         left_combinations = len(hyperparameter)
+        
+        best_validation_error = float('inf')
+        
         best_hyperparams = []
-        count_patience = 0
         
         for theta in hyperparameter:
-            X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.9)
+            val_losses, accuracies_validation, mees_validation, mees_test = [], [], [], []
+            
+            X_train, y_train, X_val, y_val = split_data(data_X, data_y, 0.8)
 
             indices = np.random.permutation(len(y_train))
             X_shuffled = X_train[indices]
             y_shuffled = y_train[indices]
 
             network = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **theta)
-            network.train(X_shuffled, y_shuffled, test_X, test_y, task)
-
+            
+            if task != "cup":
+                losses, test_losses, accuracies, test_accuracies = network.train_monk(X_train, y_train, test_X, test_y, task)
+            else:
+                mees, mees_test = network.train_cup(X_train, y_train, test_X, test_y, task)
+                
             # Evaluate on validation set
-            val_loss = network.evaluate(X_val, y_val)
+            val_loss = network.evaluate(X_val, y_val, task)
             val_losses.append(val_loss)
 
             # Compute accuracy on validation set
             val_predictions = network.predict(X_val)
-            accuracy = network.compute_accuracy(y_val, val_predictions)
-            accuracies.append(accuracy)
+
+            if task != "cup":
+                accuracies_validation.append(network.compute_accuracy(y_val, val_predictions))
+
+            else:
+                mees_validation = cp.deepcopy(val_losses)
 
             # Update best hyperparameter and best model if the current ones are better
             if len(val_losses) > 1:
                 if val_loss < val_losses[-2]:
                     best_theta = cp.deepcopy(theta)
                     best_model = cp.deepcopy(network)
-                    count_patience = 0
+
+                    best_validation_error = val_loss
                     
-                    print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
-                
-                else:
-                    count_patience += 1
-                    print(f"\nCurrent validation error: {val_loss}\nCurrent hyperparameters: {theta}\nCurrent accuracy: {accuracy}\n")
-                    if count_patience == patience:
-                        print("Early stopping after ", patience, " iterations")
-                        break
+                    if task != "cup":
+                        print(f"\nNEW BETTER!!\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracies_validation[-1]}\n")
+                    else:
+                        print(f"\nNEW BETTER!!\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest MEE: {mees_validation[-1]}\n")
+                        
+                        # Save the 5 best model info in a json file
+                        
+                        model = {
+                            'theta': best_theta,
+                            'validation_error (mee)': best_validation_error,
+                            #aggiungi grafici
+                        }
+                        if len(best_hyperparams) >= 5:
+                            best_hyperparams.pop(0)
+                            best_hyperparams.append(model)
+                        else:
+                            best_hyperparams.append(model)
 
             else:
                 best_theta = cp.deepcopy(theta)
                 best_model = cp.deepcopy(network)
-                print(f"\nBest validation error: {val_loss}\nBest hyperparameters: {theta}\nBest accuracy: {accuracy}\n")
-            
-            if task == "cup":
-                model = {
-                    'theta': best_theta,
-                    'model': best_model,
-                    'validation_error': val_losses[-1],
-                    # AGGIUNGERE GRAFICI
-                }
-                if len(best_hyperparams) == 5:
-                    best_hyperparams.pop(0)
+                best_validation_error = val_loss
+                if task == "cup":
+                    model = {
+                                'theta': best_theta,
+                                'validation_error (mee)': best_validation_error,
+                                
+                                #aggiungi grafici
+                    }
+
                     best_hyperparams.append(model)
+
+                
+            
         
             left_combinations -= 1
             print(f"Combinations left: {left_combinations}\n")
         
-        return best_theta, best_model, val_losses[-1]
+        if task == "cup":
+            # Save the model info in a json file
+            with open('./models_best_cup/'+ task+ '_hold-out' +'_model_info.json', 'w+') as outfile:
+                json.dump(best_hyperparams, outfile)
+    
+        if task == "cup":
+            return best_theta, best_model,best_validation_error, mees_validation, mees_test, mees
+        else:
+            return best_theta, best_model,best_validation_error, losses, test_losses, accuracies, test_accuracies
  
 def split_data_into_folds(data_X, data_y, K, k):
     """
@@ -344,7 +448,7 @@ def model_assessment(final_model, test_X, test_y, task):
     if task != "cup":
         # Compute accuracy on test set 
         accuracy = final_model.compute_accuracy(test_y, test_predictions)
-        print("Accuracy TEST: ", accuracy)
+        print("\nAccuracy TEST: ", accuracy)
     else:
         mee = mean_euclidean_error(test_y, test_predictions)
-        print("MEE TEST: ", mee)
+        print("\nMEE TEST: ", mee)
