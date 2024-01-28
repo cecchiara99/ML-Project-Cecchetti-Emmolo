@@ -14,7 +14,7 @@ path_file_test_3 = './monk+s+problems/monks-3.test'
 path_file_train_cup = './cup+problem/ML-CUP23-TR.csv'
 path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
-task = "cup" # "monk1" or "monk2" or "monk3" or "cup"
+task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
 
 print(f"\nTask: {task}\n")
 
@@ -61,6 +61,28 @@ print(f"Type selection: {type_selection}\n")
 best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
 
 model_assessment(best_model, test_X, test_y, task)
+
+task = 'monk2'
+data_X, data_y = read_monk(path_file_train_2)
+test_X, test_y = read_monk(path_file_test_2)
+print(f"\nLettura {task} completata\n")
+
+input_size = data_X.shape[1]
+output_size = data_y.shape[1]
+
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
+model_assessment(best_model, test_X, test_y, task)
+
+task = 'monk3'
+data_X, data_y = read_monk(path_file_train_3)
+test_X, test_y = read_monk(path_file_test_3)
+print(f"\nLettura {task} completata\n")
+
+
+
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
+model_assessment(best_model, test_X, test_y, task)
+
 
 if task == "cup":
     predictions = best_model.predict(blind_test_X)

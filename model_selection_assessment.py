@@ -154,7 +154,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
 
 
         # Save the model info in a json file
-        with open('./models_info/'+ task+ '_' + type_selection +'_model_info.json', 'w+') as outfile:
+        with open('./model_info/'+ task+ '_' + type_selection +'_model_info.json', 'w+') as outfile:
             json.dump(model_info_monk, outfile)
     else:
         # Create a dictionary containing the model info
