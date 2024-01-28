@@ -1,6 +1,7 @@
 from read_data import *
 from model_selection_assessment import *
 from utils import *
+import os
 
 # Specify the paths to your training and test files
 path_file_train_1 = './monk+s+problems/monks-1.train'
@@ -13,7 +14,7 @@ path_file_test_3 = './monk+s+problems/monks-3.test'
 path_file_train_cup = './cup+problem/ML-CUP23-TR.csv'
 path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
-task = "cup" # "monk1" or "monk2" or "monk3" or "cup"
+task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
 data_X = None
 data_y = None
 
@@ -42,11 +43,23 @@ activation_output = "tanh"
 K = 5
 
 
-# Train the model on the training set and select the best model
-best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task, test_X, test_y)
+# Train the model on the training set and select the best model -> ultimo parametro scegliere tipo model selection ('k-fold' o 'hold-out') DI DEFAULT è K-FOLD
+
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, K, task, test_X, test_y, 'k-fold')
 
 model_assessment(best_model, test_X, test_y)
 
 if task == "cup":
     predictions = best_model.predict(blind_test_X)
     create_cup_csv(predictions)
+
+file_path = './learning_curve.png'
+
+if os.path.exists(file_path):
+    os.remove(file_path)
+
+file_path = './accuracy_curve.png'
+
+if os.path.exists(file_path):
+    os.remove(file_path)
+    

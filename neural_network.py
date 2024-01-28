@@ -93,6 +93,9 @@ class NeuralNetwork:
         losses_cup = []
 
         for epoch in range(self.epochs):
+
+            batch_loss = 0
+            batch_loss_test = 0
             
             for i in range(0, m, self.batch_size):
                 X_batch = X[i:i + self.batch_size]
@@ -102,20 +105,21 @@ class NeuralNetwork:
                 
                 hidden_layer_output, output = self.forward_propagation(X_batch)
                 loss = self.calculate_loss(y_batch, output)
+                batch_loss += loss
                 if task == "cup":
-                    loss_cup = mean_euclidean_error(y_batch, output)
-                    losses_cup.append(loss_cup)
+                    batch_loss_test += mean_euclidean_error(y_test, self.predict(X_test))
+                    
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
+            losses.append(batch_loss / self.batch_size)
             accuracies.append(self.compute_accuracy(y, self.predict(X)))
-            losses.append(loss)
+            losses_cup.append(batch_loss_test / self.batch_size)
             test_predictions = self.predict(X_test)
             test_losses.append(self.calculate_loss(y_test, test_predictions))
             accuracy_test = self.compute_accuracy(y_test, test_predictions)
             accuracies_test.append(accuracy_test)
 
-
-        
+  
         #loss curve
         if task == "cup":
             plt.plot(range(0, self.epochs), losses_cup, label='Training Loss', color='blue')
