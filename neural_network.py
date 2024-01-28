@@ -111,7 +111,10 @@ class NeuralNetwork:
                     
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
-            losses.append(batch_loss / self.batch_size)
+            #losses.append(batch_loss / self.batch_size)
+
+            losses.append(loss)    
+            
             accuracies.append(self.compute_accuracy(y, self.predict(X)))
             losses_cup.append(batch_loss_test / self.batch_size)
             test_predictions = self.predict(X_test)
@@ -157,13 +160,9 @@ class NeuralNetwork:
     def compute_accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
     
-    def evaluate(self, X, y, task):
+    def evaluate(self, X, y):
         _, output = self.forward_propagation(X)
-        if task == "monk1" or task == "monk2" or task == "monk3":
-            loss = mean_squared_error(y, output)
-        elif task == "cup":
-            loss = mean_euclidean_error(y, output)  
-        else: 
-            print("Error: task not recognized")
-            loss = None
+        
+        loss = mean_squared_error(y, output)
+        
         return loss
