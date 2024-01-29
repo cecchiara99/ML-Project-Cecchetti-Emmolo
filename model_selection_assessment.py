@@ -236,9 +236,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
 
         # Update best hyperparameter and best model if the current ones are better
         if avg_validation_error < best_validation_error:
-            print("BEST VALIDATION ERROR UPDATED\n")
             best_validation_error = avg_validation_error
-            print(f"\nNEW BEST VALIDATION ERROR: {best_validation_error}\n")
 
             best_theta = cp.deepcopy(theta)
             best_model = cp.deepcopy(network)
@@ -247,12 +245,10 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
 
             if task != "cup":
                 best_accuracy = np.mean(accuracies_validation[:len(validation_y)]) 
-                print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {best_accuracy}\n")
 
             else:
                 best_mee = best_validation_error
-                print(f"\nNEW BETTER!!\nBest validation error: {best_validation_error}\nBest hyperparameters: {theta}\nBest MEE: {best_mee}\n")
-            
+                
             
             # Save the 5 best model info in a json file
             if task == "cup":
@@ -334,17 +330,15 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
                     best_validation_error = validation_error
                     
                     
-                    if task != "cup":
-                        print(f"\nNEW BETTER!!\nBest validation error: {validation_error}\nBest hyperparameters: {theta}\nBest accuracy: {accuracies_validation[-1]}\n")
-                    else:
-                        print(f"\nNEW BETTER!!\nBest validation error: {validation_error}\nBest hyperparameters: {theta}\nBest MEE: {mees_validation[-1]}\n")
+                    if task == "cup":
                         
                         # Save the 5 best model info in a json file
                         
                         model = {
                             'theta': best_theta,
                             'validation_error (mee)': best_validation_error,
-                            #aggiungi grafici
+                            'mees': mees,
+                            'mees_test': mees_test,
                         }
                         if len(best_hyperparams) >= 5:
                             best_hyperparams.pop(0)
@@ -361,7 +355,8 @@ def hold_out(input_size, output_size, activation_hidden, activation_output, data
                                 'theta': best_theta,
                                 'validation_error (mee)': best_validation_error,
                                 
-                                #aggiungi grafici
+                                'mees': mees,
+                                'mees_test': mees_test,
                     }
 
                     best_hyperparams.append(model)
