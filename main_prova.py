@@ -62,6 +62,36 @@ best_model = model_selection(input_size, output_size, activation_hidden, activat
 
 model_assessment(best_model, test_X, test_y, task)
 
+task = "monk2"
+
+data_X, data_y = read_monk(path_file_train_2)
+test_X, test_y = read_monk(path_file_test_2)
+print(f"\nLettura {task} completata\n")
+
+input_size = data_X.shape[1]
+output_size = data_y.shape[1]
+
+# Train the model on the training set and select the best model -> ultimo parametro scegliere tipo model selection ('k-fold' o 'hold-out') DI DEFAULT è K-FOLD
+
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
+
+model_assessment(best_model, test_X, test_y, task)
+
+task = "monk3"
+
+data_X, data_y = read_monk(path_file_train_3)
+test_X, test_y = read_monk(path_file_test_3)
+print(f"\nLettura {task} completata\n")
+
+input_size = data_X.shape[1]
+output_size = data_y.shape[1]
+
+# Train the model on the training set and select the best model -> ultimo parametro scegliere tipo model selection ('k-fold' o 'hold-out') DI DEFAULT è K-FOLD
+
+best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
+
+model_assessment(best_model, test_X, test_y, task)
+
 if task == "cup":
     predictions = best_model.predict(blind_test_X)
     create_cup_csv(predictions)
