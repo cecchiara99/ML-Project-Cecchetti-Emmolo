@@ -14,7 +14,12 @@ path_file_test_3 = './monk+s+problems/monks-3.test'
 path_file_train_cup = './cup+problem/ML-CUP23-TR.csv'
 path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
-task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
+
+# Specify the task you want to perform and the activation functions you want to use
+task = "cup" # "monk1" or "monk2" or "monk3" or "cup"
+activation_hidden = "relu"
+activation_output = "identity"
+type_selection = "k-fold" # "k-fold" or "hold-out"
 
 print(f"\nTask: {task}\n")
 
@@ -44,35 +49,27 @@ output_size = data_y.shape[1]
 
 print(f"Input size: {input_size}\n")  
 print(f"Output size: {output_size}\n")
-
-activation_hidden = "sigmoid"
-activation_output = "tanh"
-K = 5
-
 print(f"Activation hidden: {activation_hidden}\n")
 print(f"Activation output: {activation_output}\n")
-
-type_selection = 'k-fold' # "k-fold" or "hold-out"
-
 print(f"Type selection: {type_selection}\n")
 
-# Train the model on the training set and select the best model -> ultimo parametro scegliere tipo model selection ('k-fold' o 'hold-out') DI DEFAULT è K-FOLD
+# Train the model on the training set and select the best model -> last parameter is the type of model selection ('k-fold' o 'hold-out', default = 'k-fold')
+best_results = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, test_X, test_y, task, type_selection)
 
-best_model = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, task, test_X, test_y, type_selection)
+"""# Choose the best model (first of best result)
+best_model = best_results[0]['model']
 
-model_assessment(best_model, test_X, test_y, task)
-
+# Save the predictions on the blind test set for CUP
 if task == "cup":
     predictions = best_model.predict(blind_test_X)
-    create_cup_csv(predictions)
+    create_cup_csv(predictions)"""
+
 
 file_path = './learning_curve.png'
-
 if os.path.exists(file_path):
     os.remove(file_path)
 
 file_path = './accuracy_curve.png'
-
 if os.path.exists(file_path):
     os.remove(file_path)
 

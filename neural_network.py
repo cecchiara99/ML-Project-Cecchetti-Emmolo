@@ -15,9 +15,9 @@ class NeuralNetwork:
         self.lambda_reg = lambda_reg
         self.w_init_limit = w_init_limit
 
+        # Initialize weights and biases
         self.weights_input_hidden, self.biases_hidden, self.weights_hidden_output, self.biases_output = self.initialize_parameters()
 
-        # Set activation functions
         act_funcs = {
             'sigmoid': sigmoid,
             'tanh': tanh,
@@ -34,32 +34,48 @@ class NeuralNetwork:
             'identity': identity_derivative
         }
 
+        # Set activation functions
         self.activation_hidden = act_funcs[activation_hidden] if (activation_hidden in act_funcs) else sigmoid
         self.activation_output = act_funcs[activation_output] if (activation_output in act_funcs) else sigmoid
         self.activation_hidden_derivative = act_funcs_derivatives[activation_hidden] if (activation_hidden in act_funcs_derivatives) else sigmoid_derivative
         self.activation_output_derivative = act_funcs_derivatives[activation_output] if (activation_output in act_funcs_derivatives) else sigmoid_derivative
 
+
     def initialize_parameters(self):
+        """
+        Initialize the parameters of the neural network.
+
+        :return: the initialized parameters
+        """
+
         np.random.seed(42)
         weights_input_hidden = np.random.uniform(low=self.w_init_limit[0], high=self.w_init_limit[1], size=(self.input_size, self.hidden_size))
         biases_hidden = np.ones((1, self.hidden_size))
         weights_hidden_output = np.random.uniform(low=self.w_init_limit[0], high=self.w_init_limit[1], size=(self.hidden_size, self.output_size))
         biases_output = np.ones((1, self.output_size))
+
         return weights_input_hidden, biases_hidden, weights_hidden_output, biases_output
 
+
     def forward_propagation(self, X):
+        """
+        Execute the forward propagation step of the neural network.
+
+        :param X: the input data
+
+        :return: the output of the hidden layer and the output of the output layer
+        """
+
+        # Compute the output of the hidden layer
         hidden_layer_input = np.dot(X, self.weights_input_hidden) + self.biases_hidden
         hidden_layer_output = self.activation_hidden(hidden_layer_input)
 
+        # Compute the output of the output layer
         output_layer_input = np.dot(hidden_layer_output, self.weights_hidden_output) + self.biases_output
         output = self.activation_output(output_layer_input)
 
         return hidden_layer_output, output
-
-    def calculate_loss(self, y, y_pred):
-        m = len(y)
-        loss = np.mean((y_pred - y) ** 2)
-        return loss
+    
 
     def backward_propagation(self, X, y, hidden_layer_output, output):
         m = len(y)
@@ -84,67 +100,25 @@ class NeuralNetwork:
         self.weights_input_hidden -= self.momentum * self.learning_rate * np.clip(weights_input_hidden_gradient, -1e10, 1e10)
         self.biases_hidden -= self.momentum * self.learning_rate * np.clip(biases_hidden_gradient, -1e10, 1e10)
 
-    def train_monk(self, X, y, X_test, y_test,task, validation_X, validation_y):
-        m = len(y)
+
+    def train(self, training_X, training_y, validation_X, validation_y, task, patience=10):
+        m = len(training_y)
         losses = []
-        test_losses = []
-        
-        accuracies = []
-        accuracies_test = []
+        best_validation_error = 100
 
         for epoch in range(self.epochs):
+            loss = 0
 
-            batch_loss = 0
-            
             for i in range(0, m, self.batch_size):
-                X_batch = X[i:i + self.batch_size]
-                y_batch = y[i:i + self.batch_size]
-                
+                X_batch = training_X[i:i + self.batch_size]
+                y_batch = training_y[i:i + self.batch_size]
                 
                 hidden_layer_output, output = self.forward_propagation(X_batch)
-                loss = self.calculate_loss(y_batch, output)
-                batch_loss += loss
-                    
+                batch_loss = mean_squared_error(y_batch, output)
+                loss += batch_loss
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
-            # Evaluate the model on the validation set
-            validation_error = self.evaluate(validation_X, validation_y, task)
-
-            
-            
-            val_predictions = self.predict(validation_X)
-            losses.append(loss)  
-            
-            accuracies.append(self.compute_accuracy(y, self.predict(X)))
-            test_predictions = self.predict(X_test)
-            test_losses.append(self.calculate_loss(y_test, test_predictions))
-            accuracy_test = self.compute_accuracy(y_test, test_predictions)
-            accuracies_test.append(accuracy_test)
-
-        return validation_error, val_predictions,losses, test_losses, accuracies, accuracies_test
-  
-    def train_cup(self, X, y, X_test, y_test,task, validation_X, validation_y, patience=10):
-        m = len(y)
-        losses = []
-        test_losses = []
-        
-        mees = []
-        mees_test = []
-        best_validation_error = float('inf')
-
-        for epoch in range(self.epochs):
-
-            batch_loss = 0
-            
-            for i in range(0, m, self.batch_size):
-                X_batch = X[i:i + self.batch_size]
-                y_batch = y[i:i + self.batch_size]
-                
-                hidden_layer_output, output = self.forward_propagation(X_batch)
-                    
-                self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
-            
-            # Evaluate the model on the validation set
+            """# Evaluate the model on the validation set
             validation_error = self.evaluate(validation_X, validation_y, task)
             # Check for early stopping
             if validation_error < best_validation_error:
@@ -153,33 +127,91 @@ class NeuralNetwork:
             else:
                 consecutive_no_improvement += 1
 
-            if consecutive_no_improvement >= patience:
-                print(f"Early stopping at epoch {epoch} with validation error {best_validation_error}")
-                break
-            
-            mees.append(validation_error)
+            if consecutive_no_improvement > patience:
+                print(f"Early stopping at epoch {epoch} with validation error {validation_error}")
+                n_epochs = epoch
+                break"""
 
-            val_predictions = self.predict(validation_X)
+            loss = loss / (m / self.batch_size)
+            # Print the loss every 100 epochs
+            #if epoch % 100 == 0:
+            #    print(f"Epoch {epoch} - Loss: {loss} - Validation error: {validation_error}")
             
-            test_predictions = self.predict(X_test)
-            mees_test.append(mean_euclidean_error(y_test, test_predictions))
 
+    def retrain(self, data_X, data_y, test_X, test_y, task='monk', patience=10):
+        m = len(data_y)
+        n_epochs = self.epochs
+        best_validation_error = float('inf')
+        consecutive_no_improvement = 0
+        # For MONK
+        losses = []
+        test_losses = []
+        accuracies = []
+        test_accuracies = []
+        # For CUP
+        mees = []
+        mees_test = []
+        
+
+        for epoch in range(self.epochs):
+            loss = 0
             
-           
+            for i in range(0, m, self.batch_size):
+                X_batch = data_X[i:i + self.batch_size]
+                y_batch = data_y[i:i + self.batch_size]
+                
+                hidden_layer_output, output = self.forward_propagation(X_batch)
+                batch_loss = mean_squared_error(y_batch, output)
+                loss += batch_loss
+                self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
+            
+            """# Evaluate the model on the validation set
+            validation_error = self.evaluate(data_X, data_y, task)
+            # Check for early stopping
+            if validation_error < best_validation_error:
+                best_validation_error = validation_error
+                consecutive_no_improvement = 0
+            else:
+                consecutive_no_improvement += 1
 
-        return epoch, validation_error, val_predictions, mees, mees_test 
+            if consecutive_no_improvement > patience:
+                print(f"Early stopping at epoch {epoch} with validation error {validation_error}")
+                n_epochs = epoch
+                break"""
+
+            loss = loss / (m/self.batch_size)
+            # Print the loss every 100 epochs
+            if epoch % 100 == 0:
+                print(f"Epoch {epoch} - Loss: {loss}")
+            
+            if task != 'cup':
+                losses.append(loss)
+                test_losses.append(mean_squared_error(test_y, self.predict(test_X)))
+                accuracies.append(self.compute_accuracy(data_y, self.predict(data_X)))
+                test_accuracies.append(self.compute_accuracy(test_y, self.predict(test_X)))
+            else:
+                mees.append(self.evaluate(data_X, data_y, task))
+                mees_test.append(self.evaluate(test_X, test_y, task))
+            
+        if task != 'cup':
+            return losses, test_losses, accuracies, test_accuracies, n_epochs
+        else:
+            return mees, mees_test, None, None, n_epochs
+
 
     def predict(self, X):
         _, output = self.forward_propagation(X)
-        return np.round(output)
+        return np.round(output) # Round the output to 0 or 1 for classification, leave it as it is for regression
+
 
     def compute_accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
     
-    def evaluate(self, X, y,task):
-        _, output = self.forward_propagation(X)
 
-        if task != "cup":
+    def evaluate(self, X, y, task):
+        output = self.predict(X)
+        loss = 0
+        if task != 'cup':
             loss = mean_squared_error(y, output)
         else:
             loss = mean_euclidean_error(y, output)

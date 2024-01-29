@@ -1,0 +1,1 @@
+{"model": {"hidden_size": 20, "learning_rate": 0.1, "epochs": 600, "batch_size": 800, "momentum": 0.5, "lambda_reg": 1e-05, "w_init_limit": [-0.2, 0.2]}, "mee": 17.617489699974687, "mee_test": 18.30702722312981, "validation_error": 15.724775212335123}
