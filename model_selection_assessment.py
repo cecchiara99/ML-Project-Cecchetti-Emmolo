@@ -44,14 +44,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     # Cup
     #hyperparameters = [{'hidden_size': 47, 'learning_rate': 0.08, 'epochs': 600, 'batch_size': 200, 'momentum': 0.11, 'lambda_reg': 0.00001, 'w_init_limit': [-0.7, 0.7]}]
 
-
-    hyperparameters = [{'hidden_size': 100, 'learning_rate': 0.1, 'epochs': 600, 'batch_size': 200, 'momentum': 0.1, 'lambda_reg': 0.0001, 'w_init_limit': [-0.7, 0.7]}]
-
-    #hyperparameters = [{'hidden_size': 4, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': len(data_y), 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.7, 0.7]}]
-    #hyperparameters = [{'hidden_size': 30, 'learning_rate': 0.2, 'epochs': 600, 'batch_size': 200, 'momentum': 0.1, 'lambda_reg': 0.001, 'w_init_limit': [-0.1, 0.1]}]
-    #hyperparameters = [{'hidden_size': 30, 'learning_rate': 0.1, 'epochs': 600, 'batch_size': 16, 'momentum': 0.1, 'lambda_reg': 0.0001, 'w_init_limit': [-0.5, 0.5]}]
-    #hyperparameters = [{'hidden_size': 5, 'learning_rate': 0.05, 'epochs': 1000, 'batch_size': 200, 'momentum': 0.5, 'lambda_reg': 0.0001, 'w_init_limit': [-0.1, 0.1]}]
-
+    
     # MODEL SELECTION
     if type_selection == "k-fold":
         K = 5
