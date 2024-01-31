@@ -257,10 +257,10 @@ def set_hyperparameters_ranges(task, len_data, fine_search=True):
             hyperparameters_ranges = {
                 # Specify range (lower_limit, upper_limit, step)
                 'hidden_size': (47, 47, 1),           
-                'learning_rate': (0.01, 0.10, 0.01),
+                'learning_rate': (0.01, 0.1, 0.001),
                 'epochs': (500, 600, 100),
                 'batch_size': [200],
-                'momentum': (0.1, 0.2, 0.1),
+                'momentum': (0.1, 0.2, 0.01),
                 'lambda_reg': [0.00001],
                 'w_init_limit': [[-0.7,0.7]]
             }

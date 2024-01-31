@@ -59,8 +59,8 @@ best_results = model_selection(input_size, output_size, activation_hidden, activ
 if task == "cup":
     best_model = best_results[0]['model']
     predictions = best_model.predict(blind_test_X)
-    create_cup_csv(predictions)"""
-
+    create_cup_csv(predictions)
+"""
 
 file_path = './learning_curve.png'
 if os.path.exists(file_path):
