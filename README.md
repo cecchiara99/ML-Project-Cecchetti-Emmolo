@@ -4,15 +4,11 @@ Progect for Machine Learning masted degree course at University of Pisa
 
 ## Overview
 
-- [Project Title](#project-title)
 - [Description](#description)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+- [Authors](#authors)
 
 
 ## Description
@@ -22,21 +18,27 @@ training part consist in a Minibatch Stochastic Gradient Descent with Backpropag
 We perform a model selection exploiting Grid Search and 5-Fold Cross Validation to test the network with the MONK problem and to find the best model for the CUP competition.
 The final goal was to find the 
 
-## Getting Started
-
-Instructions on how to get your project up and running.
-
 
 ### Dependencies
 
 This project dependencies are:
-
+numpy
+pandas
+matplotlib
+itertools
+(os, shutil, json)
 
 
 ### Installation
 
-Clone the repository
+Install Python:
+sudo apt install python3
 
+Install pip:
+sudo apt install --upgrade python3-pip
+
+Install requirements:
+python -m pip install --requirement requirements.txt
 
 
 ## Usage
@@ -44,17 +46,8 @@ Clone the repository
 Provide examples or instructions on how to use your project. Include code snippets if necessary.
 
 
-## Contributing
+## Authors
 
-Explain how others can contribute to your project. Include guidelines for reporting issues, submitting pull requests, and any coding standards.
-
-
-## License
-
-Specify the license under which your project is distributed.
-
-
-## Contact
-
-Provide your contact information or instructions on how others can reach out to you.
+Cecchetti Chiara (c.cecchetti@studenti.unipi.it)
+Emmolo Nicola (n.emmolo@studenti.unipi.it)
 

@@ -94,6 +94,16 @@ class NeuralNetwork:
     
 
     def backward_propagation(self, X, y, hidden_layer_output, output):
+        """
+        Execute the backward propagation step of the neural network.
+
+        :param X: the input data
+        :param y: the target data
+        :param hidden_layer_output: the output of the hidden layer
+        :param output: the output of the output layer
+
+        :return: None
+        """
         m = len(y)
         error_output = output - y
 
@@ -118,9 +128,21 @@ class NeuralNetwork:
 
 
     def train(self, training_X, training_y, validation_X, validation_y, task, patience=10):
+        """
+        Train the neural network.
+
+        :param training_X: the training input data
+        :param training_y: the training target data
+        :param validation_X: the validation input data
+        :param validation_y: the validation target data
+        :param task: the task
+        :param patience: the patience for early stopping
+
+        :return: None
+        """
         m = len(training_y)
-        losses = []
-        best_validation_error = 100
+        consecutive_no_improvement = 0
+        best_validation_error = float('inf')
 
         for epoch in range(self.epochs):
             loss = 0
@@ -151,11 +173,24 @@ class NeuralNetwork:
 
             loss = loss / (m / self.batch_size)
             # Print the loss every 100 epochs
-            #if epoch % 100 == 0:
-            #    print(f"Epoch {epoch} - Loss: {loss} - Validation error: {validation_error}")
+            if epoch % 100 == 0:
+                print(f"Epoch {epoch} - Loss: {loss}")
             
 
     def retrain(self, data_X, data_y, test_X, test_y, task='monk', patience=10):
+        """
+        Retrain the neural network.
+
+        :param data_X: the training input data
+        :param data_y: the training target data
+        :param test_X: the test input data
+        :param test_y: the test target data
+        :param task: the task
+        :param patience: the patience for early stopping
+
+        :return: None
+        """
+
         m = len(data_y)
         n_epochs = self.epochs
         best_validation_error = float('inf')
@@ -169,7 +204,6 @@ class NeuralNetwork:
         mees = []
         mees_test = []
         
-
         for epoch in range(self.epochs):
             loss = 0
             test_loss = 0
@@ -208,34 +242,62 @@ class NeuralNetwork:
                 print(f"Epoch {epoch} - Loss: {loss}")
             
             if task != 'cup':
+                # For MONK
                 losses.append(loss)
                 test_losses.append(test_loss)
                 accuracies.append(self.compute_accuracy(data_y, self.predict(data_X)))
                 test_accuracies.append(self.compute_accuracy(test_y, self.predict(test_X)))
             else:
+                # For CUP
                 mees.append(self.evaluate(data_X, data_y, task))
                 mees_test.append(self.evaluate(test_X, test_y, task))
             
         if task != 'cup':
+            # For MONK
             print(f"Final loss: {losses[-1]}")
             print(f"Final test loss: {test_losses[-1]}")
             return losses, test_losses, accuracies, test_accuracies, n_epochs
         else:
+            # For CUP
             print(f"Final MEE: {mees[-1]}")
             print(f"Final test MEE: {mees_test[-1]}")
             return mees, mees_test, None, None, n_epochs
 
 
     def predict(self, X):
+        """
+        Predict the output of the neural network.
+
+        :param X: the input data
+
+        :return: the output of the neural network
+        """
         _, output = self.forward_propagation(X)
         return np.round(output) # Round the output to 0 or 1 for classification, leave it as it is for regression
 
 
     def compute_accuracy(self, y_true, y_pred):
+        """
+        Compute the accuracy of the model.
+
+        :param y_true: the true labels
+        :param y_pred: the predicted labels
+
+        :return: the accuracy
+        """
         return np.mean(y_true == y_pred)
     
 
     def evaluate(self, X, y, task):
+        """
+        Evaluate the model on the given data.
+
+        :param X: the input data
+        :param y: the target data
+        :param task: the task
+
+        :return: the loss
+        """
         output = self.predict(X)
         loss = 0
         if task != 'cup':

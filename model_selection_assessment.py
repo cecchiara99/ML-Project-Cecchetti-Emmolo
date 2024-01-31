@@ -2,7 +2,6 @@ import numpy as np
 import copy as cp
 from neural_network import NeuralNetwork
 from itertools import product
-from sklearn.model_selection import train_test_split
 from utils import *
 import json
 import shutil
@@ -41,7 +40,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     # Monk3 no reg
     #hyperparameters = [{'hidden_size': 2, 'learning_rate': 0.55, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0, 'w_init_limit': [-0.2, 0.2]}]
     # Monk3 reg
-    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
+    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
     # Cup
     #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
 
@@ -218,6 +217,23 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
         
     
 def hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameter, task, patience, n_best_results):
+    """
+    Perform hold-out to select the best results
+
+    :param input_size: the size of the input layer
+    :param output_size: the size of the output layer
+    :param activation_hidden: the activation function of the hidden layer
+    :param activation_output: the activation function of the output layer
+    :param data_X: the input data
+    :param data_y: the target data
+    :param hyperparameter: a list of dictionaries containing the hyperparameters values to try
+    :param task: the task to perform
+    :param patience: the number to wait before early stopping
+    :param n_best_results: the number of best results to return
+
+    :return: the best results of the model selection
+    """
+
     network = None
     best_results = initialize_best_results(n_best_results)
     left_combinations = len(hyperparameter)

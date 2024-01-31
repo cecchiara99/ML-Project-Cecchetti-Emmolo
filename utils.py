@@ -92,7 +92,7 @@ def split_data_into_folds(data_X, data_y, K, k):
 
     :return: the training and validation sets
     """
-
+    
     # Compute the size of each fold
     n_samples = len(data_X)
     fold_size = n_samples // K
@@ -113,6 +113,13 @@ def split_data_into_folds(data_X, data_y, K, k):
 
 
 def initialize_best_results(n):
+    """
+    Initialize the best results.
+
+    :param n: the number of best results to initialize
+
+    :return: the best results
+    """
     best_results = []
 
     for i in range(n):
@@ -156,6 +163,17 @@ def create_cup_csv(outputs):
 
 
 def plot_graphs_monk(losses, test_losses, accuracies, test_accuracies, epochs):
+    """
+    Plot the learning curve and the accuracy curve for the MONK task.
+    
+    :param losses: the losses on the training set
+    :param test_losses: the losses on the test set
+    :param accuracies: the accuracies on the training set
+    :param test_accuracies: the accuracies on the test set
+    :param epochs: the number of epochs
+
+    :return: None
+    """
     plt.plot(range(0, epochs), losses, label='Training', color='blue')
     plt.plot(range(0, epochs), test_losses, label='Test', color='red')
     plt.xlabel('Epoch')
@@ -176,6 +194,15 @@ def plot_graphs_monk(losses, test_losses, accuracies, test_accuracies, epochs):
 
 
 def plot_graphs_cup(mees, mees_test, epochs):
+    """
+    Plot the MEE curve.
+
+    :param mees: the MEEs on the development set
+    :param mees_test: the MEEs on the test set
+    :param epochs: the number of epochs
+
+    :return: None
+    """
     plt.plot(range(0, epochs), mees, label='Development', color='blue')
     plt.plot(range(0, epochs), mees_test, label='Test', color='red')
 
@@ -189,6 +216,15 @@ def plot_graphs_cup(mees, mees_test, epochs):
 
 # Set hyperparameters ranges for MONK or CUP
 def set_hyperparameters_ranges(task, len_data, fine_search=True):
+    """
+    Set the hyperparameters ranges for the MONK or CUP task.
+
+    :param task: the task to perform
+    :param len_data: the length of the dataset
+    :param fine_search: True if you want to perform a fine search, False otherwise
+
+    :return: the hyperparameters ranges
+    """
     hyperparameters_ranges = None
 
     if task == "monk1" or task == "monk2" or task == "monk3":
