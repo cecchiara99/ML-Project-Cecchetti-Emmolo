@@ -13,20 +13,18 @@ Progect for Machine Learning masted degree course at University of Pisa
 
 ## Description
 
-This project is about the Python implementation from scratch of an Multi Layer Perceptron simulator, where the
-training part consist in a Minibatch Stochastic Gradient Descent with Backpropagation.
-We perform a model selection exploiting Grid Search and 5-Fold Cross Validation to test the network with the MONK problem and to find the best model for the CUP competition.
-The final goal was to find the 
+This project is about the implementation from scratch of a Multi Layer Perceptron simulator in Python. The training phase consists in a Minibatch Stochastic Gradient Descent with Backpropagation. We perform a model selection exploiting Grid Search and a 5-Fold Cross Validation to test the network on the MONK problem and to find the best model for the CUP competition.
+The final goal was obtain the output results on a Blind Test.
 
 
 ### Dependencies
 
 This project dependencies are:
-numpy
-pandas
-matplotlib
-itertools
-(os, shutil, json)
+numpy: https://numpy.org/doc/1.26/
+pandas: https://pandas.pydata.org/docs/
+matplotlib: https://matplotlib.org/stable/index.html
+itertools: https://docs.python.org/3/library/itertools.html
+copy: https://docs.python.org/3/library/copy.html
 
 
 ### Installation
@@ -43,7 +41,9 @@ python -m pip install --requirement requirements.txt
 
 ## Usage
 
-Provide examples or instructions on how to use your project. Include code snippets if necessary.
+python ./main.py
+
+Note: in the file main.py is possible to modify the type of dataset and the relative task, the activaction functions to use for the hidden units and output units respectively, and the type of model selection.
 
 
 ## Authors

@@ -1,4 +1,4 @@
-This project is about the Python implementation from scratch of an Multi Layer Perceptron simulator, where the
-training part consist in a Minibatch Stochastic Gradient Descent with Backpropagation. We perform a model selection
-exploiting Grid Search and 5-Fold Cross Validation to test the network with the MONK problem and to find the best
-model for the CUP competition.
+This project is about the implementation from scratch of a Multi Layer Perceptron simulator in Python.
+The training phase consists in a Minibatch Stochastic Gradient Descent with Backpropagation. We perform a
+model selection exploiting Grid Search and a 5-Fold Cross Validation to test the network on the MONK problem
+and to find the best model for the CUP competition. The final goal was obtain the output results on a Blind Test.

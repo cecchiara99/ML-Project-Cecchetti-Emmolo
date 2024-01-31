@@ -29,9 +29,9 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     best_results = None
     patience = 20
 
-    hyperparameters_ranges = set_hyperparameters_ranges(task, len_data=data_X.shape[0], fine_search=True)
+    #hyperparameters_ranges = set_hyperparameters_ranges(task, len_data=data_X.shape[0], fine_search=True)
 
-    hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
+    #hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
     # Monk1
     #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.05, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
@@ -44,6 +44,11 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     # Cup
     #hyperparameters = [{'hidden_size': 47, 'learning_rate': 0.09, 'epochs': 600, 'batch_size': 200, 'momentum': 0.1, 'lambda_reg': 0.00001, 'w_init_limit': [-0.7, 0.7]}]
     
+    #hyperparameters = [{'hidden_size': 4, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': len(data_y), 'momentum': 0.9, 'lambda_reg': 0.1, 'w_init_limit': [-0.7, 0.7]}]
+    #hyperparameters = [{'hidden_size': 30, 'learning_rate': 0.2, 'epochs': 600, 'batch_size': 200, 'momentum': 0.1, 'lambda_reg': 0.001, 'w_init_limit': [-0.1, 0.1]}]
+    #hyperparameters = [{'hidden_size': 30, 'learning_rate': 0.1, 'epochs': 600, 'batch_size': 16, 'momentum': 0.1, 'lambda_reg': 0.0001, 'w_init_limit': [-0.5, 0.5]}]
+    hyperparameters = [{'hidden_size': 5, 'learning_rate': 0.05, 'epochs': 1000, 'batch_size': 200, 'momentum': 0.5, 'lambda_reg': 0.0001, 'w_init_limit': [-0.1, 0.1]}]
+
     # MODEL SELECTION
     if type_selection == "k-fold":
         K = 5
@@ -54,7 +59,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
             best_results = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, patience, n_best_results=1)
         else:
             # For CUP
-            best_results = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, patience, n_best_results=5)
+            best_results = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, patience, n_best_results=1)
 
     elif type_selection == "hold-out":
         print("\nINIZIO Hold-out\n")
@@ -64,7 +69,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
             best_results = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, patience, n_best_results=1)
         else:
             # For CUP
-            best_results = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, patience, n_best_results=5)
+            best_results = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, patience, n_best_results=1)
     else:
         print("Error: type of model selection not recognized")
         return None
