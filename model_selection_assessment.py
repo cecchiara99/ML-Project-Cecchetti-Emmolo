@@ -42,8 +42,8 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     # Monk3 reg
     #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
     # Cup
-    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
-
+    #hyperparameters = [{'hidden_size': 47, 'learning_rate': 0.09, 'epochs': 600, 'batch_size': 200, 'momentum': 0.1, 'lambda_reg': 0.00001, 'w_init_limit': [-0.7, 0.7]}]
+    
     # MODEL SELECTION
     if type_selection == "k-fold":
         K = 5
@@ -82,6 +82,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
             # Retrain the model on the whole training set
             model = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **best_result['theta'])
             losses, test_losses, accuracies, test_accuracies, epochs = model.retrain(data_X, data_y, test_X, test_y, task, patience)
+            best_result['model'] = cp.deepcopy(model)
 
             # Compute accuracy on development set and test set - after retraining
             accuracy = model.compute_accuracy(data_y, model.predict(data_X))
@@ -114,6 +115,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
             # Retrain the model on the whole training set
             model = NeuralNetwork(input_size, output_size, activation_hidden, activation_output, **best_result['theta'])
             mees, mees_test, _, _, epochs = model.retrain(data_X, data_y, test_X, test_y, task, patience)
+            best_result['model'] = cp.deepcopy(model)
 
             # Compute MEE on development set and test set - after retraining
             mee_after_retraining = model.evaluate(data_X, data_y, task)

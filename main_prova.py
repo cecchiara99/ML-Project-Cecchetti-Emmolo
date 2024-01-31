@@ -55,13 +55,11 @@ print(f"Type selection: {type_selection}\n")
 # Train the model on the training set and select the best model -> last parameter is the type of model selection ('k-fold' o 'hold-out', default = 'k-fold')
 best_results = model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, test_X, test_y, task, type_selection)
 
-"""# Choose the best model (first of best result)
-best_model = best_results[0]['model']
-
 # Save the predictions on the blind test set for CUP
 if task == "cup":
+    best_model = best_results[0]['model']
     predictions = best_model.predict(blind_test_X)
-    create_cup_csv(predictions)"""
+    create_cup_csv(predictions)
 
 
 file_path = './learning_curve.png'
