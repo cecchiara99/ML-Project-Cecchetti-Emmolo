@@ -40,7 +40,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     # Monk3 no reg
     #hyperparameters = [{'hidden_size': 2, 'learning_rate': 0.55, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0, 'w_init_limit': [-0.2, 0.2]}]
     # Monk3 reg
-    hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
+    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
     # Cup
     #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
 
