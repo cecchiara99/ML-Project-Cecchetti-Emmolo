@@ -5,6 +5,22 @@ from utils import *
 
 class NeuralNetwork:
     def __init__(self, input_size, output_size, activation_hidden, activation_output, hidden_size=2, learning_rate=0.1, epochs=1000, batch_size=32, momentum=0.9, lambda_reg=0.01, w_init_limit=[-0.1, 0.1]):
+        """
+        Initialize the neural network.
+
+        :param input_size: the size of the input layer
+        :param output_size: the size of the output layer
+        :param activation_hidden: the activation function of the hidden layer
+        :param activation_output: the activation function of the output layer
+        :param hidden_size: the size of the hidden layer
+        :param learning_rate: the learning rate
+        :param epochs: the number of epochs
+        :param batch_size: the batch size
+        :param momentum: the momentum
+        :param lambda_reg: the regularization parameter
+        :param w_init_limit: the range of the initial weights
+        """
+        
         self.input_size = int(input_size)
         self.hidden_size = int(hidden_size)
         self.output_size = int(output_size)
@@ -118,19 +134,20 @@ class NeuralNetwork:
                 loss += batch_loss
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
-            """# Evaluate the model on the validation set
-            validation_error = self.evaluate(validation_X, validation_y, task)
-            # Check for early stopping
-            if validation_error < best_validation_error:
-                best_validation_error = validation_error
-                consecutive_no_improvement = 0
-            else:
-                consecutive_no_improvement += 1
+            if task == 'cup':
+                # Evaluate the model on the validation set
+                validation_error = self.evaluate(validation_X, validation_y, task)
+                # Check for early stopping
+                if validation_error < best_validation_error:
+                    best_validation_error = validation_error
+                    consecutive_no_improvement = 0
+                else:
+                    consecutive_no_improvement += 1
 
-            if consecutive_no_improvement > patience:
-                print(f"Early stopping at epoch {epoch} with validation error {validation_error}")
-                n_epochs = epoch
-                break"""
+                if consecutive_no_improvement > patience:
+                    print(f"Early stopping at epoch {epoch} with validation error {validation_error}")
+                    n_epochs = epoch
+                    break
 
             loss = loss / (m / self.batch_size)
             # Print the loss every 100 epochs
@@ -155,6 +172,7 @@ class NeuralNetwork:
 
         for epoch in range(self.epochs):
             loss = 0
+            test_loss = 0
             
             for i in range(0, m, self.batch_size):
                 X_batch = data_X[i:i + self.batch_size]
@@ -163,30 +181,35 @@ class NeuralNetwork:
                 hidden_layer_output, output = self.forward_propagation(X_batch)
                 batch_loss = mean_squared_error(y_batch, output)
                 loss += batch_loss
+                batch_loss
+                batch_test_loss = mean_squared_error(test_y, self.predict(test_X))
+                test_loss += batch_test_loss
                 self.backward_propagation(X_batch, y_batch, hidden_layer_output, output)
             
-            """# Evaluate the model on the validation set
-            validation_error = self.evaluate(data_X, data_y, task)
-            # Check for early stopping
-            if validation_error < best_validation_error:
-                best_validation_error = validation_error
-                consecutive_no_improvement = 0
-            else:
-                consecutive_no_improvement += 1
+            if task == 'cup':
+                # Evaluate the model on the validation set
+                validation_error = self.evaluate(data_X, data_y, task)
+                # Check for early stopping
+                if validation_error < best_validation_error:
+                    best_validation_error = validation_error
+                    consecutive_no_improvement = 0
+                else:
+                    consecutive_no_improvement += 1
 
-            if consecutive_no_improvement > patience:
-                print(f"Early stopping at epoch {epoch} with validation error {validation_error}")
-                n_epochs = epoch
-                break"""
+                if consecutive_no_improvement > patience:
+                    print(f"Early stopping at epoch {epoch} with validation error {validation_error}")
+                    n_epochs = epoch
+                    break
 
             loss = loss / (m/self.batch_size)
+            test_loss = test_loss / (m/self.batch_size)
             # Print the loss every 100 epochs
             if epoch % 100 == 0:
                 print(f"Epoch {epoch} - Loss: {loss}")
             
             if task != 'cup':
                 losses.append(loss)
-                test_losses.append(mean_squared_error(test_y, self.predict(test_X)))
+                test_losses.append(test_loss)
                 accuracies.append(self.compute_accuracy(data_y, self.predict(data_X)))
                 test_accuracies.append(self.compute_accuracy(test_y, self.predict(test_X)))
             else:
@@ -194,8 +217,12 @@ class NeuralNetwork:
                 mees_test.append(self.evaluate(test_X, test_y, task))
             
         if task != 'cup':
+            print(f"Final loss: {losses[-1]}")
+            print(f"Final test loss: {test_losses[-1]}")
             return losses, test_losses, accuracies, test_accuracies, n_epochs
         else:
+            print(f"Final MEE: {mees[-1]}")
+            print(f"Final test MEE: {mees_test[-1]}")
             return mees, mees_test, None, None, n_epochs
 
 

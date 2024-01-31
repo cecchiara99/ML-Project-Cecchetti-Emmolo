@@ -9,31 +9,41 @@ import shutil
 import os
 
 def model_selection(input_size, output_size, activation_hidden, activation_output, data_X, data_y, test_X, test_y, task, type_selection = "k-fold"):
+    """
+    Perform model selection to select the best results
 
+    :param input_size: the size of the input layer
+    :param output_size: the size of the output layer
+    :param activation_hidden: the activation function of the hidden layer
+    :param activation_output: the activation function of the output layer
+    :param data_X: the input data
+    :param data_y: the target data
+    :param test_X: the test input data
+    :param test_y: the test target data
+    :param task: the task to perform
+    :param type_selection: the type of model selection to perform
+
+    :return: the best results of the model selection
+    """
 
     test_losses = []
-
-    hyperparameters_ranges = set_hyperparameters_ranges(task, len_data=data_X.shape[0])
-    
-    hyperparameters_ranges = {
-        # Specify range (lower_limit, upper_limit, step)
-        'hidden_size': (20, 40, 10),           
-        'learning_rate': (0.1, 0.1, 0.1),
-        'epochs': (600, 600, 100),
-        'batch_size': [len(data_y)],
-        'momentum': (0.1, 0.9, 0.4),
-        'lambda_reg': [0.00001],
-        'w_init_limit': [[-0.2,0.2]]
-    }
-
     best_results = None
+    patience = 20
 
-    patience = 50
+    hyperparameters_ranges = set_hyperparameters_ranges(task, len_data=data_X.shape[0], fine_search=True)
 
     hyperparameters = generate_combinations_from_ranges(hyperparameters_ranges)
 
-    # Monk
-    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.9, 'epochs': 600, 'batch_size': 64, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
+    # Monk1
+    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.05, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
+    # Monk2
+    #hyperparameters = [{'hidden_size': 4, 'learning_rate': 0.4, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0, 'w_init_limit': [-0.2, 0.2]}]
+    # Monk3 no reg
+    #hyperparameters = [{'hidden_size': 2, 'learning_rate': 0.55, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0, 'w_init_limit': [-0.2, 0.2]}]
+    # Monk3 reg
+    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
+    # Cup
+    #hyperparameters = [{'hidden_size': 3, 'learning_rate': 0.1, 'epochs': 500, 'batch_size': 1, 'momentum': 0.9, 'lambda_reg': 0.001, 'w_init_limit': [-0.2, 0.2]}]
 
     # MODEL SELECTION
     if type_selection == "k-fold":
@@ -41,22 +51,26 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
         print(f"\nINIZIO K-fold cross validation, K = {K} \n")
 
         if task != "cup":
+            # For MONK
             best_results = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, patience, n_best_results=1)
         else:
+            # For CUP
             best_results = k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, K, task, patience, n_best_results=5)
 
     elif type_selection == "hold-out":
         print("\nINIZIO Hold-out\n")
 
         if task != "cup":
+            # For MONK
             best_results = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, patience, n_best_results=1)
         else:
+            # For CUP
             best_results = hold_out(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparameters, task, patience, n_best_results=5)
     else:
         print("Error: type of model selection not recognized")
         return None
     
-    i = 0
+    i = 0 # Counter for the models
     # RETRAINING
     print("END MODEL SELECTION, START RETRAINING...\n")
     if task != "cup":
@@ -145,7 +159,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
   
 def k_fold_cross_validation(input_size, output_size, activation_hidden, activation_output, data_X, data_y, hyperparams, K, task, patience, n_best_results):
     """
-    Perform K-fold cross validation to select the best hyperparameters and the best model
+    Perform K-fold cross validation to select the best results
 
     :param input_size: the size of the input layer
     :param output_size: the size of the output layer
@@ -153,14 +167,13 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     :param activation_output: the activation function of the output layer
     :param data_X: the input data
     :param data_y: the target data
-    :param test_X: the test input data
-    :param test_y: the test target data
     :param hyperparams: a list of dictionaries containing the hyperparameters values to try
     :param K: number of folds
     :param task: the task to perform
     :param patience: the number to wait before early stopping
+    :param n_best_results: the number of best results to return
 
-    :return: the best hyperparameters and the best model
+    :return: the best results of the model selection
     """
 
     network = None
@@ -171,6 +184,7 @@ def k_fold_cross_validation(input_size, output_size, activation_hidden, activati
     for theta in hyperparams:
         tot_validation_error = 0.0
   
+        # 
         indices = np.random.permutation(len(data_y))
         X_shuffled = data_X[indices]
         y_shuffled = data_y[indices]

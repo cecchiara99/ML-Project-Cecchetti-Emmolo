@@ -1,1 +1,0 @@
-{"theta": {"hidden_size": 4.0, "learning_rate": 0.9, "epochs": 500.0, "batch_size": 64, "momentum": 0.9, "lambda_reg": 0.001, "w_init_limit": [-0.2, 0.2]}, "model_selection": "k-fold", "validation_error": 0.1037905330304431, "accuracy": 1.0, "img_learning_curve": "./model_graphs/monk2_k-fold_learning_curve.jpg", "img_accuracy": "./model_graphs/monk2_k-fold_accuracy.jpg"}

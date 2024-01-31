@@ -176,7 +176,7 @@ def plot_graphs_monk(losses, test_losses, accuracies, test_accuracies, epochs):
 
 
 def plot_graphs_cup(mees, mees_test, epochs):
-    plt.plot(range(0, epochs), mees, label='Validation', color='blue')
+    plt.plot(range(0, epochs), mees, label='Development', color='blue')
     plt.plot(range(0, epochs), mees_test, label='Test', color='red')
 
     plt.title('MEE curve')
@@ -188,31 +188,46 @@ def plot_graphs_cup(mees, mees_test, epochs):
 
 
 # Set hyperparameters ranges for MONK or CUP
-def set_hyperparameters_ranges(task, len_data):
-    if task == "monk":
-        # Set hyperparameters ranges for MONK
-        hyperparameters_ranges =  {
+def set_hyperparameters_ranges(task, len_data, fine_search=True):
+    hyperparameters_ranges = None
+
+    if task == "monk1" or task == "monk2" or task == "monk3":
+        hyperparameters_ranges = {
             # Specify range (lower_limit, upper_limit, step)
-            'hidden_size': (3, 4, 1),           
-            'learning_rate': (0.1, 0.9, 0.1),
-            'epochs': (300, 500, 100),
-            'batch_size': [64, len_data],
-            'momentum': (0.5, 0.9, 0.1),
-            'lambda_reg': [0.001, 0.01, 0.1],
-            'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
+            'hidden_size': (2, 4, 1),           
+            'learning_rate': (0.025, 0.055, 0.005),
+            'epochs': (500, 500, 100),
+            'batch_size': [1],
+            'momentum': (0.9, 0.9, 0.1),
+            'lambda_reg': [0],
+            'w_init_limit': [[-0.2,0.2]]
         }
     elif task == "cup":
         # Set hyperparameters ranges for CUP
-        hyperparameters_ranges = {
-            # Specify range (lower_limit, upper_limit, step)
-            'hidden_size': (3, 4, 1),           
-            'learning_rate': (0.1, 0.9, 0.1),
-            'epochs': (300, 500, 100),
-            'batch_size': [64, len_data],
-            'momentum': (0.5, 0.9, 0.1),
-            'lambda_reg': [0.001, 0.01, 0.1],
-            'w_init_limit': [[-0.3, 0.3],[-0.2, 0.2],[-0.1,0.1]]
-        }
+        if fine_search == False:
+            # Coarse search
+            hyperparameters_ranges = {
+                # Specify range (lower_limit, upper_limit, step)
+                'hidden_size': (40, 50, 1),           
+                'learning_rate': (0.05, 0.15, 0.01),
+                'epochs': (400, 800, 100),
+                'batch_size': [200, 400, 600, len_data],
+                'momentum': (0.1, 0.2, 0.01),
+                'lambda_reg': [0.000001, 0.00001, 0.0001],
+                'w_init_limit': [[-0.5, 0.5], [-0.6, 0.6], [-0.7,0.7]]
+            }
+        else:
+            # Fine search
+            hyperparameters_ranges = {
+                # Specify range (lower_limit, upper_limit, step)
+                'hidden_size': (47, 47, 1),           
+                'learning_rate': (0.01, 0.10, 0.01),
+                'epochs': (500, 600, 100),
+                'batch_size': [200],
+                'momentum': (0.1, 0.2, 0.1),
+                'lambda_reg': [0.00001],
+                'w_init_limit': [[-0.7,0.7]]
+            }
     else:
         print("Error: task not recognized")
         return None

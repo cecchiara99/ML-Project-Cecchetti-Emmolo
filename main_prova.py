@@ -19,7 +19,7 @@ path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 task = "cup" # "monk1" or "monk2" or "monk3" or "cup"
 activation_hidden = "relu"
 activation_output = "identity"
-type_selection = "k-fold" # "k-fold" or "hold-out"
+type_selection = "hold-out" # "k-fold" or "hold-out"
 
 print(f"\nTask: {task}\n")
 
