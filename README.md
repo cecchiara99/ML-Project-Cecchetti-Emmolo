@@ -1,6 +1,6 @@
-# Project Title
+# ML-Project
 
-Progect for Machine Learning masted degree course at University of Pisa
+Project for Machine Learning masted degree course at University of Pisa
 
 ## Overview
 

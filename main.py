@@ -16,9 +16,9 @@ path_file_test_cup = './cup+problem/ML-CUP23-TS.csv'
 
 
 # Specify the task you want to perform and the activation functions you want to use
-task = "cup" # "monk1" or "monk2" or "monk3" or "cup"
-activation_hidden = "relu" # depends on the task
-activation_output = "identity" # depends on the task
+task = "monk1" # "monk1" or "monk2" or "monk3" or "cup"
+activation_hidden = "sigmoid" # depends on the task
+activation_output = "tanh" # depends on the task
 type_selection = "k-fold" # "k-fold" or "hold-out"
 
 data_X = None

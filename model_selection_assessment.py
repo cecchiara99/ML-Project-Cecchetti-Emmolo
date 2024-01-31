@@ -44,7 +44,7 @@ def model_selection(input_size, output_size, activation_hidden, activation_outpu
     # Cup
     #hyperparameters = [{'hidden_size': 47, 'learning_rate': 0.08, 'epochs': 600, 'batch_size': 200, 'momentum': 0.11, 'lambda_reg': 0.00001, 'w_init_limit': [-0.7, 0.7]}]
 
-    
+
     # MODEL SELECTION
     if type_selection == "k-fold":
         K = 5
