@@ -20,13 +20,13 @@ The final goal was obtain the output results on a Blind Test.
 ### Dependencies
 
 This project dependencies are:
-numpy: https://numpy.org/doc/1.26/
-pandas: https://pandas.pydata.org/docs/
-matplotlib: https://matplotlib.org/stable/index.html
-itertools: https://docs.python.org/3/library/itertools.html
-copy: https://docs.python.org/3/library/copy.html
-scipy: https://docs.scipy.org/doc/scipy/
-statsmodels: https://www.statsmodels.org/stable/index.html
+- numpy: https://numpy.org/doc/1.26/
+- pandas: https://pandas.pydata.org/docs/
+- matplotlib: https://matplotlib.org/stable/index.html
+- itertools: https://docs.python.org/3/library/itertools.html
+- copy: https://docs.python.org/3/library/copy.html
+- scipy: https://docs.scipy.org/doc/scipy/
+- statsmodels: https://www.statsmodels.org/stable/index.html
 
 
 ### Installation
@@ -50,6 +50,6 @@ Note: in the file main.py is possible to modify the type of dataset and the rela
 
 ## Authors
 
-Cecchetti Chiara (c.cecchetti@studenti.unipi.it)
-Emmolo Nicola (n.emmolo@studenti.unipi.it)
+- Cecchetti Chiara (c.cecchetti@studenti.unipi.it)
+- Emmolo Nicola (n.emmolo@studenti.unipi.it)
 
